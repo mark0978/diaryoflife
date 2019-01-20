@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block contents %}
+
+    <h1>{{ object.title }}</h1>
+
+    <div class='markdown'>
+    {{ formatted_text }}
+    </div>
+
+    {% if object.author.user == request.user %}
+        <a href="{% url 'entries:edit' pk=object.id %}">Edit</a>
+    {% endif %}
+
+<div class="inspire" style="font-size:150%; margin-top:2em;">
+Did this touch or inspire you?  Would you like to share a story from your life?
+</div>
+
+{% endblock contents %}

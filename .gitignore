@@ -1,0 +1,5 @@
+*.wp*
+.DS_Store
+diary/site/
+*.sqlite3
+__pycache__
