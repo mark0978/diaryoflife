@@ -23,9 +23,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '!o2s&6c-9uvhixifsh1oiuhdgnffz6-614+(ff12=&3d35tb11'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.getenv(DJANGO_DEBUG, 0)))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'www.diaryof.life',
+    'diaryof.life',
+    'diary',
+]
 
 
 # Application definition
