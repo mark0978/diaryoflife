@@ -15,4 +15,5 @@ sys.path.insert(0, os.path.dirname(this_dir))
 from wsgi import application
 
 
-bjoern.run(application, 'unix:/var/run/diary.sock')
+bjoern.run(application, '127.0.0.1', 8080)
+#bjoern.run(application, 'unix:/var/run/diary.sock')
