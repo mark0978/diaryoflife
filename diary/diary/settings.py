@@ -11,19 +11,70 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import logging
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!o2s&6c-9uvhixifsh1oiuhdgnffz6-614+(ff12=&3d35tb11'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'shhh! this is a a-secret-value')
+
+
+SENTRY_KEY = os.getenv("DJANGO_SENTRY_KEY", None)
+if SENTRY_KEY:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+
+    # If you have SENTRY_KEY, you better have a SENTRY_SECRET
+    SENTRY_SECRET = os.environ["DJANGO_SENTRY_SECRET"]
+
+    sentry_sdk.init(
+        dsn="https://%s@sentry.io/%s" % (SENTRY_KEY, SENTRY_SECRET),
+        integrations=[DjangoIntegration(),
+                      LoggingIntegration(level=logging.ERROR,
+                                         event_level=logging.ERROR)],
+        send_default_pii=True,
+    )
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv('DJANGO_DEBUG', 0)))
+
+if not DEBUG:
+    logging.config.dictConfig({
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'verbose': {
+                    'format': '%(levelname)s %(module)s P%(process)d T%(thread)d %(message)s'
+                    },
+                },
+            'handlers': {
+                # 'stdout': {
+                    # 'class': 'logging.StreamHandler',
+                    # 'stream': sys.stdout,
+                    # 'formatter': 'verbose',
+                    # },
+                'sys-logger': {
+                    'class': 'logging.handlers.SysLogHandler',
+                    'address': '/dev/log',
+                    'facility': "local6",
+                    'formatter': 'verbose',
+                    },
+                },
+            'loggers': {
+                '': {
+                    'handlers': ['sys-logger', ],
+                    'level': logging.DEBUG,
+                    'propagate': True,
+                    },
+                }
+        })
 
 ALLOWED_HOSTS = [
     'www.diaryof.life',
@@ -48,6 +99,7 @@ if DEBUG:
 
 INSTALLED_APPS.extend([
     'markdownx',
+
     'entries',
     'authors',
 ])
