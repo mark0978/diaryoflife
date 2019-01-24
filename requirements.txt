@@ -2,3 +2,4 @@ Django==2.1.5
 django-markdownx==2.0.28
 sentry-sdk==0.6.9
 gunicorn==19.9.0
+psycopg2==2.7.7

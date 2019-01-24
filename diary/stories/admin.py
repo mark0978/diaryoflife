@@ -4,6 +4,6 @@ from markdownx.admin import MarkdownxModelAdmin
 
 # Register your models here.
 
-from .models import Entry
+from .models import Story
 
-admin.site.register(Entry, MarkdownxModelAdmin)
+admin.site.register(Story, MarkdownxModelAdmin)

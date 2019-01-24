@@ -1,4 +1,4 @@
-"""entries URL Configuration
+"""stories URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.1/topics/http/urls/
@@ -16,9 +16,10 @@ Including another URLconf
 from django.urls import path
 from . import views
 
-app_name = 'entries'
+app_name = 'stories'
 urlpatterns = [
     path('', views.Recent.as_view(), name='recent'),
+    path('list-by-author/<int:pk>/', views.ByAuthor.as_view(), name='list-by-author'),
     path('edit/<int:pk>/', views.Edit.as_view(), name='edit'),
     path('create/', views.Create.as_view(), name='create'),
     path('read/<int:pk>/', views.Read.as_view(), name='read'),

@@ -9,11 +9,11 @@
     </div>
 
     {% if object.author.user == request.user %}
-        <a href="{% url 'entries:edit' pk=object.id %}">Edit</a>
+        <a href="{% url 'stories:edit' pk=object.id %}">Edit</a>
     {% endif %}
 
 <div class="inspire" style="font-size:150%; margin-top:2em;">
-Did this touch or inspire you?  Would you like to share a story from your life?
+<a href="{% url 'stories:create' %}?inspired_by={{ object.id }}">Share a story inspired by this?</a>
 </div>
 
 {% endblock contents %}
