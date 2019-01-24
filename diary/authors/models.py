@@ -2,8 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.safestring import SafeString
 
-from markdownx.models import MarkdownxField
-from markdownx.utils import markdownify
+from martor.models import MartorField
+from martor.utils import markdownify
 
 # Create your models here.
 
@@ -32,7 +32,7 @@ class Author(models.Model):
     # Each user profile will have a field where they can tell other users
     #   something about themselves. This field will be empty when the user
     #   creates their account, so we specify `blank=True`.
-    bio_text = MarkdownxField(blank=True)
+    bio_text = MartorField(blank=True)
 
     # In addition to the `bio` field, each user may have a profile image or
     #   avatar. Similar to `bio`, this field is not required. It may be blank.

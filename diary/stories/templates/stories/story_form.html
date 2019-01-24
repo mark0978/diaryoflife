@@ -7,9 +7,13 @@
     <table>
         {{ form.as_table }}
     </table>
-    <input type="submit" />
+    <input type="submit" value='Save'/>
 </form>
 
-{{ form.media }}
 
 {% endblock contents %}
+
+{% block javascript %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock javascript %}

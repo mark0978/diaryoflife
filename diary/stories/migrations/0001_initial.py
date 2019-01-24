@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import markdownx.models
+import martor.models
 
 
 class Migration(migrations.Migration):
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=64)),
-                ('text', markdownx.models.MarkdownxField()),
+                ('text', martor.models.MartorField()),
                 ('published_at', models.DateTimeField(blank=True, db_index=True, default=None, null=True)),
                 ('hidden_at', models.DateTimeField(blank=True, default=None, null=True)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='authors.Author', verbose_name='Pseudonym')),

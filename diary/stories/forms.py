@@ -1,14 +1,14 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from markdownx.fields import MarkdownxFormField
+from martor.fields import MartorFormField
 
 from .models import Story
 
 class StoryForm(forms.ModelForm):
     """ Used to create or edit a post """
 
-    text = MarkdownxFormField(label=_('Story'), required=True)
+    text = MartorFormField(label=_('Story'), required=True)
     author = forms.ModelChoiceField(label=_('Pseudonym'), queryset=None, required=True)
     private = forms.BooleanField(required=False)
 

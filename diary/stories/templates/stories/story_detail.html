@@ -5,7 +5,7 @@
     <h1>{{ object.title }}</h1>
 
     <div class='markdown'>
-    {{ formatted_text }}
+    {{ object.html }}
     </div>
 
     {% if object.author.user == request.user %}

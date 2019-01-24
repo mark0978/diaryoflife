@@ -24,7 +24,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name="teaser.html")),
     path('admin/', admin.site.urls),
     path('stories/', include('stories.urls')),
-    path('markdownx/', include('markdownx.urls')),
+    path('martor/', include('martor.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 

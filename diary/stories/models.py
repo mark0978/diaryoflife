@@ -3,8 +3,8 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.utils.safestring import SafeString
 
-from markdownx.models import MarkdownxField
-from markdownx.utils import markdownify
+from martor.models import MartorField
+from martor.utils import markdownify
 
 # Create your models here.
 
@@ -35,7 +35,7 @@ class Story(models.Model):
                                on_delete=models.PROTECT)
     title = models.CharField(max_length=64, null=False, blank=False)
     tagline = models.CharField(max_length=64, blank=True)
-    text = MarkdownxField(null=False, blank=False)
+    text = MartorField(null=False, blank=False)
     published_at = models.DateTimeField(default=None, null=True, blank=True, db_index=True)
     hidden_at = models.DateTimeField(default=None, null=True, blank=True)
     inspired_by = models.ForeignKey('self', default=None, null=True, blank=True,
@@ -54,7 +54,7 @@ class Story(models.Model):
               display without being escaped.  This should probably be done and cached somewhere
               and let this method do a lookup for the cached version.  An alternative would be to
               double the storage in the DB but that could mean having to update the whole  DB if we
-              fix something about markdownx.  Storing this in a memcached instance would probably
+              fix something about martor.  Storing this in a memcached instance would probably
               be better """
         # TODO: Store the results in memcached for speed
         return SafeString(markdownify(self.text))
