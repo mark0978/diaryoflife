@@ -50,38 +50,19 @@ class CommonStoryFormMixin(ModelFormMixin):
             # This seems hacky as hell.....
             return Story.objects.published(pk=int(pk)).first()
 
-    def get_form(self, form_class=None):
-        form = super(CommonStoryFormMixin, self).get_form(form_class)
-        form.fields['author'].queryset = Author.objects.for_user(self.request.user)
+    def get_form_kwargs(self):
+        """ The for needs the user to get the list of possible authors """
+        kwargs = super(CommonStoryFormMixin, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
 
-        inspired_by = self.get_inspired_by()
-        if inspired_by:
-            form.fields['inspired_by'].label = _('Inspired by "%s"') % inspired_by.title
-        else:
-            del form.fields['inspired_by']
-        return form
+        return kwargs
 
     def get_success_url(self):
         return reverse('stories:read', kwargs={'pk': self.object.id})
 
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        if form.cleaned_data["private"]:
-            obj.published_at = None
-        elif not obj.published_at:
-            obj.published_at = timezone.now()
-        obj.save()
-        self.object = obj
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(CommonStoryFormMixin, self).get_context_data(**kwargs)
-        return context
-
     def get_initial(self):
         initial = super(CommonStoryFormMixin, self).get_initial()
-        initial['inspired_by'] = self.request.GET.get('inspired_by', None)
+        initial['inspired_by'] = self.get_inspired_by()
         return initial
 
 

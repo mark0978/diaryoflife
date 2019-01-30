@@ -23,6 +23,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'shhh! this is a a-secret-value')
 
+AUTHENTICATION_BACKENDS = (
+    'userena.backends.UserenaAuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 SENTRY_KEY = os.getenv("DJANGO_SENTRY_KEY", None)
 if SENTRY_KEY:
@@ -88,6 +93,7 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -95,13 +101,29 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG:
-    INSTALLED_APPS.append('debug_toolbar')
+    INSTALLED_APPS.extend([
+        'debug_toolbar',
+        #'django_nose'
+    ])
+    # Use nose to run all tests
+    # This of course gets all the coverage wrong so.....
+    #TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+    # Tell nose to measure coverage on the 'foo' and 'bar' apps
+    #NOSE_ARGS = [
+    #    '--with-coverage',
+    #    '--cover-package=stories,authors,accounts',
+    #]
 
 INSTALLED_APPS.extend([
     'martor',
+    'userena',
+    'easy_thumbnails',
+    'guardian',
 
     'stories',
     'authors',
+    'accounts',
 ])
 
 
@@ -113,10 +135,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'userena.middleware.UserenaLocaleMiddleware',
 ]
 
 if DEBUG:
     MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # For DjDT
@@ -158,7 +182,11 @@ DATABASES = {
         'USER': os.environ['DJANGO_DB_USER'],
         'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
         'HOST': 'localhost',
-    }
+    },
+    # 'default': {
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
 }
 
 
@@ -179,6 +207,21 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+#
+# These are settings needed by Userena
+#
+SITE_ID = 1
+ANONYMOUS_USER_NAME = 'AnonymousUser'
+AUTH_PROFILE_MODULE = 'accounts.MyProfile'
+USERENA_SIGNIN_REDIRECT_URL = '/accounts/%(username)s/'
+LOGIN_URL = '/accounts/signin/'
+LOGOUT_URL = '/accounts/signout/'
+USERENA_USE_HTTPS = not DEBUG
+USERENA_MUGSHOT_DEFAULT = 'monsterid'
+USERENA_DEFAULT_PRIVACY = 'closed'
+USERENA_DISABLE_PROFILE_LIST = True
+USERENA_HIDE_EMAIL = True
 
 
 # Internationalization
@@ -254,3 +297,5 @@ MARTOR_SEARCH_USERS_URL = '/martor/search-user/' # default
 # Markdown Extensions
 MARTOR_MARKDOWN_BASE_EMOJI_URL = 'https://assets-cdn.github.com/images/icons/emoji/' # default
 MARTOR_MARKDOWN_BASE_MENTION_URL = 'https://python.web.id/author/' # default (change this)
+
+from martor.extensions import mdx_video

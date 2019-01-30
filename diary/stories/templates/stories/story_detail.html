@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
-{% block contents %}
+{% block PageTitle %}
+  {{ object.title }} -- {{ block.super }}
+{% endblock PageTitle %}
 
+{% block content %}
+<div class='story'>
     <h1>{{ object.title }}</h1>
+    <h2>{{ object.tagline }}</h2>
+    <h4>Written by {{ object.author }}</h4>
+    <h5>Published {{ object.published_at }}</h5>
 
     <div class='markdown'>
     {{ object.html }}
@@ -11,9 +18,9 @@
     {% if object.author.user == request.user %}
         <a href="{% url 'stories:edit' pk=object.id %}">Edit</a>
     {% endif %}
-
+</div>
 <div class="inspire" style="font-size:150%; margin-top:2em;">
-<a href="{% url 'stories:create' %}?inspired_by={{ object.id }}">Share a story inspired by this?</a>
+<a href="{% url 'stories:create' %}?inspired_by={{ object.id }}">Want to share a story inspired by this? <button type="button" class="btn btn-primary">Yes!</button></a>
 </div>
 
-{% endblock contents %}
+{% endblock content %}

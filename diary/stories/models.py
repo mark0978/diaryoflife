@@ -20,13 +20,9 @@ class StoryManager(models.Manager):
         """ Order the list of visible Entries by their published date (descending) """
         return self.published().order_by('-published_at')
 
-    def visible(self):
-        """ Return a QS of all the stories that have not been hidden """
-        return self.get_queryset().filter(hidden_at=None)
-
     def published(self, **kwargs):
-        """ Return the story object if visible, otherwise None """
-        return self.visible().filter(**kwargs).exclude(published_at__isnull=True)
+        """ Return a QS of all published articles that have not been hidden """
+        return self.filter(hidden_at=None, **kwargs).exclude(published_at__isnull=True)
 
 
 class Story(models.Model):
@@ -40,6 +36,11 @@ class Story(models.Model):
     hidden_at = models.DateTimeField(default=None, null=True, blank=True)
     inspired_by = models.ForeignKey('self', default=None, null=True, blank=True,
                                     on_delete=models.PROTECT)
+    language = models.CharField(_('language'),
+                                max_length=5,
+                                choices=settings.LANGUAGES,
+                                default=settings.LANGUAGE_CODE[:2],
+                                help_text=_('Story language.'))
 
     objects = StoryManager()
 
@@ -63,16 +64,26 @@ class Story(models.Model):
 
 class Flag(models.Model):
     """ When an entry is  flagged, it gets one of these records"""
+    HATE_SPEECH = 1
+    SPAM = 2
+    EXPLICIT = 3
+
+    FLAG_CHOICES = (
+        (HATE_SPEECH, _("Hate Speech")),
+        (SPAM, _("Spam")),
+        (EXPLICIT, _("Sexually Explicit")),
+    )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT)
     entry = models.ForeignKey(Story, null=False, db_index=True, on_delete=models.PROTECT)
     flagged_at = models.DateTimeField(auto_now_add=True, null=False)
+    reason = models.IntegerField(choices=FLAG_CHOICES, default=0)
 
 
 class UpVotes(models.Model):
     """ When an entry is UpVoted, it gets one of these records"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT)
     entry = models.ForeignKey(Story, null=False, db_index=True, on_delete=models.PROTECT)
-    flagged_at = models.DateTimeField(auto_now_add=True, null=False)
+    voted_at = models.DateTimeField(auto_now_add=True, null=False)
 
 
 class DownVotes(models.Model):

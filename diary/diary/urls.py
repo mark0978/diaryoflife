@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('stories/', include('stories.urls')),
     path('martor/', include('martor.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('userena.urls')),
 ]
 
 if settings.DEBUG:

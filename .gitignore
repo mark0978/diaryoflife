@@ -3,3 +3,5 @@
 diary/site/
 *.sqlite3
 __pycache__
+.coverage
+htmlcov/

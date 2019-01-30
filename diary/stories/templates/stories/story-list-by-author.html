@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block contents %}
+{% block PageTitle %}
+  Stories by: {{ author.name }} -- {{ block.super }}
+{% endblock PageTitle %}
+
+{% block content %}
 
 <!-- Begin Featured ================================================== -->
 <section class="featured-posts">
@@ -39,4 +43,4 @@
     {% endfor %}
 </div>
 </section>
-{% endblock contents %}
+{% endblock content %}

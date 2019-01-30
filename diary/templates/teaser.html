@@ -16,9 +16,7 @@
 </style>
 {% endblock styles %}
 
-{% block contents %}
-
-<h4 style="margin:1em; color: red;">Coming soon:<br />to a device near you</h4>
+{% block content %}
 
 <h3>Collaborative Storytelling</h3>
 <div class='long-explanation'>
@@ -51,4 +49,12 @@ Too often you see comments on YouTube videos or Facebook posts that look just li
 shootings.  Where the hate and the division take over and all valuable discourse is just buried in
 noise we decided to forgo comments so we don't have to worry about that.
 </div>
-{% endblock contents %}
+
+<h3>
+    TL;DR
+</h3>
+<div class='long-explanation'>
+ <a href="{% url 'stories:recent' %}">Show me some stories already!</a>
+</div>
+
+{% endblock content %}
