@@ -72,7 +72,7 @@ section {
 	border-top-left-radius:2px;
 }
 .listfeaturedtag .card-block {
-	padding-left:0;
+	padding-left:.25rem;
 }
 .listfeaturedtag h2.card-title,.listrecent h2.card-title {
 	font-size:1.3rem;
@@ -84,8 +84,17 @@ section {
 }
 .listfeaturedtag h2.card-title a:hover,.listrecent h2.card-title a:hover {
 	color:rgba(0,0,0,.6);
-	text-decoration:none;
+	text-decoration:underline;
 }
+.listfeaturedtag h3.card-tagline,.listrecent h3.card-tagline {
+	font-size:1.1rem;
+	font-weight:700;
+	line-height: 1.15;
+}
+.listfeaturedtag h2.card-title a,.listrecent h2.card-title a {
+	color:rgba(0,0,0,.8);
+}
+
 .listfeaturedtag h4.card-text,.listrecent h4.card-text {
 	color:rgba(0,0,0,.44);
 	font-size:0.95rem;
@@ -444,4 +453,20 @@ ul.tags li a:hover {
 
 div.markdown img {
     max-width: 95%;
+}
+
+.listfeaturedtag div.wrapthumbnail, .listrecent div.wrapthumbnail {
+    display: none;
+}
+
+a.wrap-card-story {
+    display: block;
+}
+
+.listfeaturedtag .wrapfooter {
+    padding-left: .5em;
+}
+
+input {
+    border: 1px solid grey; /* ios is showing the fields with no border??? */
 }

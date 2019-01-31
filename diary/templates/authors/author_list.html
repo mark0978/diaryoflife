@@ -6,8 +6,8 @@
 <h2>Your Pseudonyms are</h2>
 
 <ul class='my-pseudonyms'>
-    {% for name in object_list %}
-        <li class='pseudonym'><a href='authors:edit'>{{ name.name }}</a> - <span class='bio'>{{ name.bio_html }}</span></li>
+    {% for author in object_list %}
+        <li class='pseudonym'><a href='{% url "authors:edit" author.id %}'>{{ author.name }}</a> - <span class='bio'>{{ author.bio_html|truncatechars_html:150 }}</span></li>
     {% empty %}
         <li class='no-pseudonyms'>{% trans 'You have no Pseudonyms' %}</li>
     {% endfor %}

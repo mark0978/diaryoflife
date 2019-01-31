@@ -4,26 +4,34 @@
 {% block title %}{% trans "Signup" %}{% endblock %}
 
 {% block content %}
-<form action="" method="post">
-  {% csrf_token %}
-  <fieldset>
-    <legend>{% trans "Signup" %}</legend>
-    {{ form.non_field_errors }}
-    {% for field in form %}
-    {{ field.errors }}
-    {# Displaying checkboxes differently #}
-    {% if field.name == 'tos' %}
-    <p class="checkbox">
-    <label for="id_{{ field.name }}">{{ field }} {{ field.label }}</label>
-    </p>
-    {% else %}
-    <p>
-    {{ field.label_tag }} 
-    {{ field }}
-    </p>
-    {% endif %}
-    {% endfor %}
-  </fieldset>
-  <input type="submit" value="{% trans "Signup"%}" />
-</form>
+  <div class="row">
+    <div class="col-6">
+      <form action="" method="post">
+        {% csrf_token %}
+        <fieldset>
+          <legend>{% trans "Signup" %}</legend>
+          {{ form.non_field_errors }}
+          {% for field in form %}
+            {{ field.errors }}
+            {# Displaying checkboxes differently #}
+            {% if field.name == 'tos' %}
+              <p class="checkbox">
+                <label for="id_{{ field.name }}">{{ field }} {{ field.label }}</label>
+              </p>
+            {% else %}
+              <p>
+                {{ field.label_tag }}
+                {{ field }}
+              </p>
+            {% endif %}
+          {% endfor %}
+        </fieldset>
+        <input type="submit" value="{% trans "Signup"%}" class="btn btn-info"/>
+      </form>
+    </div>
+    <div class="col-6">
+      <h3>Already have an account?</h3>
+      <a class="nav-link" href="{% url 'userena_signin' %}">Login now!</a>
+    </div>
+  </div>
 {% endblock %}

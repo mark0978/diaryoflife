@@ -45,13 +45,18 @@ class CommonStoryFormMixin(ModelFormMixin):
     def get_inspired_by(self):
         """ Return the story that inspired this story, take that from the object, or if creating a
               new story, from the GET params """
-        if self.object:
-            return self.object.inspired_by
+        if not hasattr(self, '_inspired_by'):
 
-        pk = self.request.GET.get('inspired_by', None)
-        if pk:
-            # This seems hacky as hell.....
-            return Story.objects.published(pk=int(pk)).first()
+            if self.object:
+                self._inspired_by = self.object.inspired_by
+
+            pk = self.request.GET.get('inspired_by', None)
+            if pk:
+                # This seems hacky as hell.....
+                self._inspired_by = Story.objects.published(pk=int(pk)).first()
+
+        return self._inspired_by
+
 
     def get_form_kwargs(self):
         """ The form needs the user to get the list of possible authors """
@@ -67,6 +72,11 @@ class CommonStoryFormMixin(ModelFormMixin):
         initial = super(CommonStoryFormMixin, self).get_initial()
         initial['inspired_by'] = self.get_inspired_by()
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(CommonStoryFormMixin, self).get_context_data(**kwargs)
+        context['inspired_by'] = self.get_inspired_by()
+        return context
 
 
 class Create(LoginRequiredMixin, CommonStoryFormMixin, CreateView):

@@ -1,7 +1,10 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block PageTitle %}
-  {% if object.id %}Edit Pseudonym{% else %}Create New Pseudonym{% endif %} -- {{ block.super }}
+  {% trans "Edit Pseudonym" as title_edit %}
+  {% trans "Create New Pseudonym" as title_create %}
+  {% if object.id %}{{ title_edit }}{% else %}{{ title_create }}{% endif %} -- {{ block.super }}
 {% endblock PageTitle %}
 
 {% block content %}
@@ -10,13 +13,23 @@ you don't want to write about pain or something embarassing without a little ano
 know who you are and all of your writings can be clustered (under a pseudonym) but we won't connect
 your user/login to your pseudonyms.</p>
 
-<form method="POST" action="">{% csrf_token %}
-    <table>
-        {{ form.as_table }}
-    </table>
-    <input type="submit" value='Save'/>
+<form action="" method="post">
+  {% csrf_token %}
+  <fieldset>
+  {% trans "Edit Pseudonym" as title_edit %}
+  {% trans "Create New Pseudonym" as title_create %}
+    <legend>{% if object.id %}{{ title_edit }}{% else %}{{ title_create }}{% endif %}</legend>
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {{ field.errors }}
+      <p>
+        {{ field.label_tag }}
+        {{ field }}
+      </p>
+    {% endfor %}
+  </fieldset>
+  <input type="submit" value="{% trans "Save"%}" class="btn btn-info"/>
 </form>
-
 
 {% endblock content %}
 
