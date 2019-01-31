@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import logging
-
+from logging import config as logging_config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,7 +51,7 @@ if SENTRY_KEY:
 DEBUG = bool(int(os.getenv('DJANGO_DEBUG', 0)))
 
 if not DEBUG:
-    logging.config.dictConfig({
+    logging_config.dictConfig({
             'version': 1,
             'disable_existing_loggers': False,
             'formatters': {
