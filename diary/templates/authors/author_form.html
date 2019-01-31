@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block PageTitle %}
+  {% if object.id %}Edit Pseudonym{% else %}Create New Pseudonym{% endif %} -- {{ block.super }}
+{% endblock PageTitle %}
+
+{% block content %}
+<p>A Pseudonym is a handle you can use when writing.  Maybe you have different writing styles, maybe
+you don't want to write about pain or something embarassing without a little anonymity.  We will
+know who you are and all of your writings can be clustered (under a pseudonym) but we won't connect
+your user/login to your pseudonyms.</p>
+
+<form method="POST" action="">{% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <input type="submit" value='Save'/>
+</form>
+
+
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock javascript %}

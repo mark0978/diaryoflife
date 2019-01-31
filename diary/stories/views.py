@@ -27,7 +27,7 @@ class ByAuthor(ListView):
         return ['stories/story-list-by-author.html']
 
     def get_queryset(self):
-        return Story.objects.recent().filter(author=self.kwargs['pk'])
+        return Story.objects.by_author(author=self.kwargs['pk'])
 
     def get_context_data(self):
         """ Not sure why the call arguments are empty like this, it should have an
@@ -38,6 +38,9 @@ class ByAuthor(ListView):
 
 
 class CommonStoryFormMixin(ModelFormMixin):
+
+    model = Story
+    form_class = StoryForm
 
     def get_inspired_by(self):
         """ Return the story that inspired this story, take that from the object, or if creating a
@@ -51,7 +54,7 @@ class CommonStoryFormMixin(ModelFormMixin):
             return Story.objects.published(pk=int(pk)).first()
 
     def get_form_kwargs(self):
-        """ The for needs the user to get the list of possible authors """
+        """ The form needs the user to get the list of possible authors """
         kwargs = super(CommonStoryFormMixin, self).get_form_kwargs()
         kwargs['user'] = self.request.user
 
@@ -68,14 +71,12 @@ class CommonStoryFormMixin(ModelFormMixin):
 
 class Create(LoginRequiredMixin, CommonStoryFormMixin, CreateView):
     """ Create a new entry in the diary of life """
-    model = Story
-    form_class = StoryForm
+    pass
 
 
 class Edit(LoginRequiredMixin, CommonStoryFormMixin, UpdateView):
     """ Update an existing entry in the diary of life """
-    model = Story
-    form_class = StoryForm
+    pass
 
 
 class Read(DetailView):
@@ -93,3 +94,9 @@ class Read(DetailView):
             obj.text = _("This entry is not available for viewing by anyone")
 
         return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(Read, self).get_context_data(**kwargs)
+        context['inspired'] = Story.objects.inspired(inspiration=self.object)
+
+        return context

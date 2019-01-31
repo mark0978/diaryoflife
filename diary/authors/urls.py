@@ -1,4 +1,4 @@
-"""diary URL Configuration
+"""authors URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.1/topics/http/urls/
@@ -13,24 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf import settings
+from django.urls import path
+from . import views
 
-from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import TemplateView
-
-
+app_name = 'authors'
 urlpatterns = [
-    path('', TemplateView.as_view(template_name="teaser.html")),
-    path('admin/', admin.site.urls),
-    path('stories/', include('stories.urls')),
-    path('martor/', include('martor.urls')),
-    path('accounts/', include('userena.urls')),
-    path('authors/', include('authors.urls')),
+    path('my-pseudonyms/', views.MyPseudonyms.as_view(), name='my-pseudonyms'),
+    path('create/', views.Create.as_view(), name='create'),
+    path('edit/<int:pk>/', views.Edit.as_view(), name='edit'),
+    path('detail/<int:pk>/', views.Detail.as_view(), name='detail'),
 ]
-
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns

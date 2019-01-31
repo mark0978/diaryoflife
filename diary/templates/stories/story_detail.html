@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block PageTitle %}
+  {{ object.title }} -- {{ block.super }}
+{% endblock PageTitle %}
+
+{% block content %}
+<div class='story'>
+    <h1 class='title'>{{ object.title }}</h1>
+    <h2 class='tagline'>{{ object.tagline }}</h2>
+    <h4 class='written-by'>Written by <a href='{% url 'authors:detail' pk=object.author.id %}'>{{ object.author }}</a></h4>
+    <h5 class='published-at'>Published {{ object.published_at }}</h5>
+
+    <div class='markdown'>
+    {{ object.html }}
+    </div>
+
+    {% if object.author.user == request.user %}
+        <a href="{% url 'stories:edit' pk=object.id %}" class="btn btn-info" role="button">Edit</a>
+    {% endif %}
+</div>
+
+{% if object.inspired_by %}
+<div class='inspired-by'>
+    This story was inspired by: <a href="{% url 'stories:read' pk=object.inspired_by.id %}">{{ object.inspired_by.title }}</a>
+</div>
+{% endif %}
+
+<div class="inspire" style="font-size:150%; margin-top:2em;">
+  <a href="{% url 'stories:create' %}?inspired_by={{ object.id }}">Want to share a story inspired by this? <button type="button" class="btn btn-primary">Yes!</button></a>
+</div>
+
+{% if inspired.exists %}
+  <div class='inspired'>
+    This story inspired these stories:
+    <ul class='inspired'>
+      {% for story in inspired %}
+        <li class='inspired'>
+          <a href="{% url 'stories:read' pk=story.id %}">{{ story.title }}</a> - {{ story.tagline }}
+        </li>
+      {% endfor %}
+      </ul>
+  </div>
+{% endif %}
+
+{% endblock content %}

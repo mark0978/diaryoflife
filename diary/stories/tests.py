@@ -36,6 +36,11 @@ class TestStoryModel(TestCase):
         self.assertListEqual([self.published2.id, self.published1.id, self.published0.id],
                              [x.id for x in stories])
 
+    def test_by_author(self):
+        stories = Story.objects.by_author(author=self.published1.author)
+        self.assertEqual(set((self. published1, self.published2,)),
+                         set(stories))
+
     def test_read_time(self):
         self.assertEqual("Short read", self.published0.read_time())
 
@@ -175,7 +180,7 @@ class TestStoryViews(TestCase):
         expected = []
         self.assertListEqual(expected, list(stories))
 
-    def test_create(self):
+    def test_create_and_edit(self):
         url = reverse('stories:create')
         client = Client()
         # User NOT logged in, redirects to login
@@ -184,8 +189,7 @@ class TestStoryViews(TestCase):
         self.assertEqual('/accounts/signin/?next=/stories/create/', response.url)
 
         # Log the user in
-        username = self.author.user.username
-        self.assertTrue(client.login(username=username, password='PASSWORD'))
+        self.assertTrue(client.login(username=self.author.user.username, password='PASSWORD'))
 
         # Try getting the form again
         response = client.get(url)

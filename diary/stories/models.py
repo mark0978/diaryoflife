@@ -24,6 +24,13 @@ class StoryManager(models.Manager):
         """ Return a QS of all published articles that have not been hidden """
         return self.filter(hidden_at=None, **kwargs).exclude(published_at__isnull=True)
 
+    def by_author(self, author):
+        """ Return the recent list of stories by this author """
+        return self.recent().filter(author=author)
+
+    def inspired(self, inspiration):
+        """ Return a queryset of the list of stories inspired by inspiration """
+        return self.recent().filter(inspired_by=inspiration)
 
 class Story(models.Model):
     """ Holds a single story content """

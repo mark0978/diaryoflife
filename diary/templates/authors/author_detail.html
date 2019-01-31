@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block PageTitle %}
+  {{ object.name }} -- {{ block.super }}
+{% endblock PageTitle %}
+
+{% block content %}
+<div class='story'>
+    <h1>{{ object.name }}</h1>
+
+    <div class='markdown biography'>
+        {{ object.bio_html }}
+    </div>
+
+    {% if object.user == request.user %}
+        <a href="{% url 'authors:edit' pk=object.id %}" class="btn btn-info" role="button">Edit this Pseudonym</a>
+        <a href="{% url 'authors:my-pseudonyms' %}" class="btn btn-info" role="button">My Pseudonyms</a>
+    {% endif %}
+</div>
+<h4>Stories by {{ object.name }}</h4>
+<ul class='story-list'>
+    {% for story in stories_by_author %}
+        <li><div>
+                <a href={% url "stories:read" pk=story.id %}>{{ story.title }}</a>
+                {% if story.tagline.length %}
+                    <p class='tagline'>{{ story.tagline }}</p>
+                {% endif %}
+            </div>
+        </li>
+    {% empty %}
+        <li class='story'>{% trans "No stories :-(" %}</li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}
