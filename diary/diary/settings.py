@@ -120,6 +120,7 @@ INSTALLED_APPS.extend([
     'userena',
     'easy_thumbnails',
     'guardian',
+    'rest_framework',
 
     'stories',
     'authors',
@@ -299,3 +300,9 @@ MARTOR_MARKDOWN_BASE_EMOJI_URL = 'https://assets-cdn.github.com/images/icons/emo
 MARTOR_MARKDOWN_BASE_MENTION_URL = 'https://python.web.id/author/' # default (change this)
 
 from martor.extensions import mdx_video
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
+}

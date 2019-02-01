@@ -27,6 +27,7 @@ urlpatterns = [
     path('martor/', include('martor.urls')),
     path('accounts/', include('userena.urls')),
     path('authors/', include('authors.urls')),
+    path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:
