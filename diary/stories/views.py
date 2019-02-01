@@ -46,6 +46,7 @@ class CommonStoryFormMixin(ModelFormMixin):
         """ Return the story that inspired this story, take that from the object, or if creating a
               new story, from the GET params """
         if not hasattr(self, '_inspired_by'):
+            self._inspired_by = None
 
             if self.object:
                 self._inspired_by = self.object.inspired_by
@@ -56,6 +57,7 @@ class CommonStoryFormMixin(ModelFormMixin):
                 self._inspired_by = Story.objects.published(pk=int(pk)).first()
 
         return self._inspired_by
+
 
 
     def get_form_kwargs(self):
