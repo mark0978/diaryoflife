@@ -64,7 +64,7 @@ class TestStoryForm(TestCase):
                          Story._meta.get_field('title').max_length)
 
     def test_field_setup_no_inspired_by(self):
-        story = mommy.make(Story, text='Something')
+        story = mommy.make(Story)
         form = StoryForm(user=story.author.user)
 
         self.assertFieldsConfigured(form)
@@ -143,8 +143,10 @@ class TestStoryViews(TestCase):
                                  published_at=timezone.now()-timedelta(seconds=5))
         self.story2 = mommy.make(Story, text="Story 2", author=self.author,
                                  published_at=timezone.now()-timedelta(seconds=4))
-        self.private_story = mommy.make(Story, text="Private", published_at=None)
-        self.hidden_story = mommy.make(Story, text="Hidden", hidden_at=timezone.now(),
+        self.private_story = mommy.make(Story, text="Private", author=self.author,
+                                        published_at=None)
+        self.hidden_story = mommy.make(Story, text="Hidden", author=self.author,
+                                       hidden_at=timezone.now(),
                                        published_at=timezone.now())
 
 
@@ -165,40 +167,57 @@ class TestStoryViews(TestCase):
         self.assertListEqual(expected, list(stories))
 
         # An author with a hidden story
+        hidden = mommy.make(Story, text="Hidden", hidden_at=timezone.now(),
+                           published_at=timezone.now())
+
         response = client.get(reverse('stories:list-by-author',
-                                      args=(self.hidden_story.author.id,)))
+                                      args=(hidden.author.id,)))
 
         stories = response.context[-1]['object_list']
         expected = []
         self.assertListEqual(expected, list(stories))
 
         # An author with an unpublished story
+        unpublished = mommy.make(Story, text="Hidden", published_at=None)
+
         response = client.get(reverse('stories:list-by-author',
-                                      args=(self.private_story.author.id,)))
+                                      args=(unpublished.author.id,)))
 
         stories = response.context[-1]['object_list']
         expected = []
         self.assertListEqual(expected, list(stories))
 
-    def test_create_and_edit(self):
-        url = reverse('stories:create')
+    def test_create_requires_login(self):
         client = Client()
+
         # User NOT logged in, redirects to login
+        url = reverse('stories:create')
         response = client.get(url)
         self.assertEqual(302, response.status_code)
-        self.assertEqual('/accounts/signin/?next=/stories/create/', response.url)
+        self.assertEqual('/accounts/signin/?next=%s' % url, response.url)
+
+    def test_logged_in_returns_a_usable_form(self):
 
         # Log the user in
+        client = Client()
         self.assertTrue(client.login(username=self.author.user.username, password='PASSWORD'))
 
-        # Try getting the form again
+        # Get the form from the server
+        url = reverse('stories:create')
         response = client.get(url)
         self.assertEqual(200, response.status_code)
         form = response.context.get('form')
         self.assertFalse(form.is_bound)
-        self.assertNotIn('inspired_by', form.fields)
+        self.assertNotIn('inspired_by', form.fields) # Not present if not "inspired_by" another
 
-        # And now submit the form without any data (should give us some form errors)
+    def test_create_enforces_constraints(self):
+
+        # Log the user in
+        client = Client()
+        self.assertTrue(client.login(username=self.author.user.username, password='PASSWORD'))
+
+        # Submit the form without any data (should give us some form errors)
+        url = reverse('stories:create')
         response = client.post(url, data={})
         self.assertEqual(200, response.status_code)
         form = response.context.get('form')
@@ -208,7 +227,18 @@ class TestStoryViews(TestCase):
             'title': ['This field is required.'],
             'text': ['This field is required.']}, form.errors)
 
-        # And now we fill out the form and submit it to create a new story.
+    def test_create_creates_story(self):
+
+        # Log the user in
+        client = Client()
+        self.assertTrue(client.login(username=self.author.user.username, password='PASSWORD'))
+
+        # Submit the form with valid data
+        url = reverse('stories:create')
+        response = client.get(url)
+        self.assertEqual(200, response.status_code)
+        form = response.context.get('form')
+
         form_data ={
             'title': 'This is a new title',
             'text': '**This** is the text',
@@ -222,34 +252,60 @@ class TestStoryViews(TestCase):
         # Which should redirect us to read the story after we have saved it.
         self.assertEqual(reverse("stories:read", args=(created_story.id,)),
                          response.url)
-        self.assertIsNotNone(created_story.published_at)
+        self.assertIsNotNone(created_story.published_at) # Not marked as private
+
+    def test_inspired_by_gives_you_an_inspired_by_field_and_creates_a_story(self):
+
+        # Log the user in
+        client = Client()
+        self.assertTrue(client.login(username=self.author.user.username, password='PASSWORD'))
 
         # Now see if inspired_by works by creating a NEW story inspired by the created_story
-        url = reverse('stories:create') + "?inspired_by=%s" % created_story.id
+        url = reverse('stories:create') + "?inspired_by=%s" % self.story1.id
         response = client.get(url)
         self.assertEqual(200, response.status_code)
         form = response.context.get('form')
         self.assertFalse(form.is_bound)
         self.assertIn('inspired_by', form.fields)
-        self.assertEqual(form.initial['inspired_by'], created_story)
+        self.assertEqual(form.initial['inspired_by'], self.story1)
 
-        # And let's save it before we "unpublish it"
-        form_data.update(form.initial)
-        form_data['title'] = 'This is another new title'
+        form_data ={
+            'title': 'This is a new title',
+            'text': '**This** is the text',
+            'author': list(form.fields['author'].choices)[-1][0]
+        }
         response = client.post(url, data=form_data)
         self.assertEqual(302, response.status_code)
-        inspired_story = Story.objects.get(title=form_data['title'], author=self.author)
-        self.assertEqual(inspired_story.inspired_by, created_story)
+        created_story = Story.objects.get(title="This is a new title",
+                                          author=self.author)
+
+        # Which should redirect us to read the story after we have saved it.
+        self.assertEqual(reverse("stories:read", args=(created_story.id,)),
+                         response.url)
+        self.assertIsNotNone(created_story.published_at) # Not marked as private
+
+    def test_edit_requires_login(self):
+        client = Client()
+
+        # User NOT logged in, redirects to login
+        url = reverse('stories:edit', args=(self.story1.id,))
+        response = client.get(url)
+        self.assertEqual(302, response.status_code)
+        self.assertEqual('/accounts/signin/?next=%s' % url, response.url)
+
+    def test_the_ability_to_unpublish_a_published_story(self):
+
+        # Log the user in
+        client = Client()
+        self.assertTrue(client.login(username=self.author.user.username, password='PASSWORD'))
 
         # And then we edit the story so we can unpublish it
-        url = reverse("stories:edit", args=(inspired_story.id,))
+        url = reverse("stories:edit", args=(self.story1.id,))
         response = client.get(url)
         self.assertEqual(200, response.status_code)
         form = response.context.get('form')
-        self.assertIn('inspired_by', form.fields)
 
-
-        # Now, unpublish this inspired story and lets see if the published_at field is cleared
+        # Now, unpublish this story and see if the published_at field is cleared
         form_data = form.initial
         form_data['private'] = 1
         response = client.post(url, data=form_data)
@@ -260,18 +316,23 @@ class TestStoryViews(TestCase):
         self.assertEqual(reverse("stories:read", args=(edited_story.id,)), response.url)
 
         self.assertIsNone(edited_story.published_at)
-        # And it is still inspired_by
-        self.assertEqual(edited_story.inspired_by.id, created_story.id)
+
+
+    def test_unpublishing_of_an_inspired_by_story_removes_field(self):
+
+        # Log the user in
+        client = Client()
+        self.assertTrue(client.login(username=self.author.user.username, password='PASSWORD'))
 
         # Now see if inspired_by fails when the inspiring story is NOT published
         url = reverse('stories:create')
-        response = client.get(url, data={'inspired_by': edited_story.id})
+        response = client.get(url, data={'inspired_by': self.hidden_story.id})
         self.assertEqual(200, response.status_code)
         form = response.context.get('form')
         self.assertNotIn('inspired_by', form.fields)
 
 
-    def test_read(self):
+    def test_read_hides_certain_stories(self):
         client = Client()
 
         response = client.get(reverse("stories:read", args=(self.private_story.id,)))
