@@ -54,6 +54,8 @@ class CommonStoryFormMixin(ModelFormMixin):
             if pk:
                 # This seems hacky as hell.....
                 self._inspired_by = Story.objects.published(pk=int(pk)).first()
+            else:
+                self._inspired_by = None
 
         return self._inspired_by
 
