@@ -20,6 +20,7 @@ hooks:
     set -x
     DJANGO_SETTINGS_MODULE=diary.platform_test_settings python diary/manage.py test
     python diary/manage.py collectstatic --no-input
+    python diary/manage.py migrate
 
 mounts:
    tmp:
