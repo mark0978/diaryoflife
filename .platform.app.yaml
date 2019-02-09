@@ -16,9 +16,12 @@ web:
 hooks:
   build: |
     pip install --upgrade pip
-    pip install -r requirements.txt
+    pip install -r dev.txt
     set -x
     DJANGO_SETTINGS_MODULE=diary.platform_test_settings python diary/manage.py test diary
+
+  deploy: |
+    set -x
     python diary/manage.py collectstatic --no-input
     python diary/manage.py migrate
 
