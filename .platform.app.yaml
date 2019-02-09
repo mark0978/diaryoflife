@@ -10,7 +10,7 @@ web:
       passthru: true
       allow: false
     "/static":
-      root: "diary/site/static/"
+      root: "/app/diary/diary/site/static/"
       allow: true
 
 hooks:
@@ -19,8 +19,8 @@ hooks:
     pip install -r requirements.txt
     pwd
     ls
-    DJANGO_SETTINGS_MODULE=diary.platform_test_settings manage.py test
-    manage.py collectstatic --no-input
+    DJANGO_SETTINGS_MODULE=diary.platform_test_settings python /app/diary/diary/manage.py test
+    python /app/diary/diary/manage.py collectstatic --no-input
 
 mounts:
    tmp:
