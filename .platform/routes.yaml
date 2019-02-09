@@ -5,8 +5,8 @@
   type: redirect
   to: "https://{default}/"
   
-tls:
-    strict_transport_security:
-        enabled: true
-        include_subdomains: true
-        preload: true
+#tls:
+#    strict_transport_security:
+#        enabled: true
+#        include_subdomains: true
+#        preload: true
