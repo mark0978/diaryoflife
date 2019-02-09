@@ -18,7 +18,7 @@ hooks:
     pip install --upgrade pip
     pip install -r requirements.txt
     set -x
-    DJANGO_SETTINGS_MODULE=diary.platform_test_settings python diary/manage.py test
+    DJANGO_SETTINGS_MODULE=diary.platform_test_settings python diary/manage.py test diary
     python diary/manage.py collectstatic --no-input
     python diary/manage.py migrate
 
