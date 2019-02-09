@@ -31,3 +31,6 @@ mounts:
        source_path: logs
 
 disk: 512
+
+relationships:
+    database: "database:postgresql"

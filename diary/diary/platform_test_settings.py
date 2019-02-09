@@ -1,3 +1,9 @@
+import os
+
+# Provide dummy values for the platform environment during test
+os.environ['DJANGO_DB_USER'] = 'platform'
+os.environ['DANGO_DB_PASSWORD'] = 'platform'
+
 from .test_settings import *
 
 
