@@ -1,0 +1,30 @@
+name: webapp
+type: python:3.7
+
+web:
+  commands:
+    start: "gunicorn -b $PORT ../gunicorn_diary.py"
+  locations:
+    "/":
+      root: ""
+      passthru: true
+      allow: false
+    "/static":
+      root: "diary/site/static/"
+      allow: true
+
+hooks:
+  build: |
+    pip install -r requirements.txt
+    DJANGO_SETTINGS_MODULE=diary.platform_test_settings manage.py test
+    manage.py collectstatic --no-input
+
+mounts:
+   tmp:
+       source: local
+       source_path: tmp
+   logs:
+       source: local
+       source_path: logs
+
+disk: 512
