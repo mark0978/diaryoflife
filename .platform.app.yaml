@@ -15,7 +15,10 @@ web:
 
 hooks:
   build: |
+    pip install --upgrade pip
     pip install -r requirements.txt
+    pwd
+    ls
     DJANGO_SETTINGS_MODULE=diary.platform_test_settings manage.py test
     manage.py collectstatic --no-input
 
