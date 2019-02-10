@@ -22,6 +22,7 @@ hooks:
 
   deploy: |
     set -x
+    printenv
     python diary/manage.py collectstatic --no-input
     python diary/manage.py migrate
 

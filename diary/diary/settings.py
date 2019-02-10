@@ -50,37 +50,6 @@ if SENTRY_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv('DJANGO_DEBUG', 0)))
 
-if not DEBUG:
-    logging_config.dictConfig({
-            'version': 1,
-            'disable_existing_loggers': False,
-            'formatters': {
-                'verbose': {
-                    'format': '%(levelname)s %(module)s P%(process)d T%(thread)d %(message)s'
-                    },
-                },
-            'handlers': {
-                # 'stdout': {
-                    # 'class': 'logging.StreamHandler',
-                    # 'stream': sys.stdout,
-                    # 'formatter': 'verbose',
-                    # },
-                'sys-logger': {
-                    'class': 'logging.handlers.SysLogHandler',
-                    'address': '/dev/log',
-                    'facility': "local6",
-                    'formatter': 'verbose',
-                    },
-                },
-            'loggers': {
-                '': {
-                    'handlers': ['sys-logger', ],
-                    'level': logging.DEBUG,
-                    'propagate': True,
-                    },
-                }
-        })
-
 ALLOWED_HOSTS = [
     'www.diaryof.life',
     'diaryof.life',
