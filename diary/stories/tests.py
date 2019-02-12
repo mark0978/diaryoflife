@@ -1,7 +1,10 @@
+import urllib
 from datetime import timedelta
-from django.test import TestCase, Client
+
+from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse
+from django.test import TestCase, Client
 
 from model_mommy import mommy
 
@@ -344,3 +347,33 @@ class TestStoryViews(TestCase):
         response = client.get(reverse("stories:read", args=(self.story1.id,)))
         self.assertContains(response, self.story1.title)
 
+    def test_new_user_gets_explanation(self):
+        """ When a new user tries to create their first story, we explain pseudonyms and
+              get them to create one.  After this we should take them back to story creation,
+              the URL they first tried to visit before being redirected to the explainer """
+        user = mommy.make(settings.AUTH_USER_MODEL)
+        user.set_password('PASSWORD')
+        user.save()
+
+        client = Client()
+        self.assertTrue(client.login(username=user.username, password='PASSWORD'))
+
+        initial_url = (reverse("stories:create") + '?' + urllib.parse.urlencode({
+            'inspired_by': self.story1.id
+        }))
+
+        response = client.get(initial_url, data={'inspired_by': self.story1.id})
+        self.assertEqual(302, response.status_code)
+
+        explainer_url = (reverse('authors:explain') + '?' + urllib.parse.urlencode({
+            'next': initial_url
+        }))
+        self.assertEqual(explainer_url, response.url)
+
+        client.get(explainer_url)
+        form_data = {
+            'name': 'Test Author'
+        }
+        response = client.post(explainer_url, data=form_data)
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(initial_url, response.url)

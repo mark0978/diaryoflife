@@ -1,3 +1,5 @@
+import urllib
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -83,7 +85,17 @@ class CommonStoryFormMixin(ModelFormMixin):
 
 class Create(LoginRequiredMixin, CommonStoryFormMixin, CreateView):
     """ Create a new entry in the diary of life """
-    pass
+
+    def get(self, request, *args, **kwargs):
+        has_pseudonyms = Author.objects.for_user(self.request.user).exists()
+
+        if not has_pseudonyms:
+            return HttpResponseRedirect(reverse('authors:explain')
+                                        + '?' + urllib.parse.urlencode({
+                                            'next': request.get_full_path()
+                                        }))
+        self.object = None
+        return super(Create, self).get(request, *args, **kwargs)
 
 
 class Edit(LoginRequiredMixin, CommonStoryFormMixin, UpdateView):

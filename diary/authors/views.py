@@ -30,8 +30,17 @@ class CommonAuthorFormMixin(ModelFormMixin):
         return reverse('authors:detail', kwargs={'pk': self.object.id})
 
 
+class Explain(LoginRequiredMixin, CommonAuthorFormMixin, CreateView):
+    """ Explain the concept of Pseudonyms and writing a story and get the user to
+          create their first pseudonym so they can write a story. """
+    template_name = "authors/explain_author_form.html"
+
+    def get_success_url(self):
+        return (self.request.GET.get('next', None)
+                or super(Explain, self).get_success_url())
+
 class Create(LoginRequiredMixin, CommonAuthorFormMixin, CreateView):
-    """ Update an new author bio/name/avatar """
+    """ Create a new author bio/name/avatar """
     pass
 
 

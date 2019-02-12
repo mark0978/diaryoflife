@@ -20,6 +20,7 @@ app_name = 'authors'
 urlpatterns = [
     path('my-pseudonyms/', views.MyPseudonyms.as_view(), name='my-pseudonyms'),
     path('create/', views.Create.as_view(), name='create'),
+    path('explain/', views.Explain.as_view(), name='explain'),
     path('edit/<int:pk>/', views.Edit.as_view(), name='edit'),
     path('detail/<int:pk>/', views.Detail.as_view(), name='detail'),
 ]

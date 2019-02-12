@@ -23,6 +23,12 @@ your user/login to your pseudonyms.</p>
     {% for field in form %}
       {{ field.errors }}
       <p>
+        {% if field.name == 'bio_text' %}
+          <div>This is where you can give a little background for the pseudonym.  Maybe you are
+          sharing stories your Grandmother told you and you want your audience to understand
+          her better.  This is where you could share the background that would be common to all the
+          writings by this author.</div>
+        {% endif %}
         {{ field.label_tag }}
         {{ field }}
       </p>

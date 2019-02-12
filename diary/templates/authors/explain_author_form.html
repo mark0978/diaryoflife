@@ -1,0 +1,15 @@
+{% extends "authors/author_form.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <h3>{% trans 'It looks like this is your first story!  Glad you could join us.' %}</h3>
+  <p>{% trans "Before you can create a story, you need to create a Pseudonym, the name this story will be published under." %}</p>
+
+  {{ block.super }}
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock javascript %}
