@@ -6,10 +6,13 @@ python:
   - 3.7
   
 install:
-  - pip install -r requirements.txt
+  - pip install -r dev.txt
 
 before_script:
-  - psql -c 'create database diary_test;' -U postgres
+  - psql -c "CREATE USER django WITH PASSWORD 'password', SUPERUSER;" -U postgres
+  - psql -c "ALTER ROLE django SET client_encoding to 'utf8';" -U postgres 
+  - psql -c "ALTER ROLE django SET default_transaction_isolati on TO 'read committed';" -U postgres
+  - psql -c "ALTER ROLE listener SET timezone to 'UTC';" -U postgres
 
 script: DJANGO_SETTINGS_MODULE=diary.test_settings coverage run -a --branch diary/manage.py test
 
