@@ -15,7 +15,8 @@ before_script:
   - psql -c "ALTER ROLE django SET default_transaction_isolation TO 'read committed';" -U postgres
   - psql -c "ALTER ROLE django SET timezone to 'UTC';" -U postgres
 
-script: DJANGO_SETTINGS_MODULE=diary.test_settings coverage run -a --branch diary/manage.py test
+script: 
+  - $(cd diary; DJANGO_SETTINGS_MODULE=diary.test_settings coverage run -a --branch manage.py test .)
 
 services:
   - postgresql
