@@ -9,7 +9,7 @@ services:
   - postgresql
      
 install:
-  - pip install -r dev.txt
+  - pip install -r requirements/dev.txt
 
 before_script:
   - psql -c "CREATE USER django WITH PASSWORD 'password';" -U postgres
