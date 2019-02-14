@@ -27,4 +27,5 @@ $ DJANGO_SETTINGS_MODULE=diary.test_settings coverage run manage.py test && cove
 
 [![Build Status](https://travis-ci.org/mark0978/diaryoflife.svg?branch=master)](https://travis-ci.org/mark0978/diaryoflife)
 [![Coverage Status](https://coveralls.io/repos/github/mark0978/diaryoflife/badge.svg?branch=master)](https://coveralls.io/github/mark0978/diaryoflife?branch=master)
-[![Requirements Status](https://requires.io/github/mark0978/diaryoflife/requirements.svg?branch=travis)](https://requires.io/github/mark0978/diaryoflife/requirements/?branch=travis)
+[![Requirements Status](https://requires.io/github/mark0978/diaryoflife/requirements.svg?branch=travis)](https://requires.io/github/mark0978/diaryoflife/requirements/?branch=master)
+
