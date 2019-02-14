@@ -5,6 +5,9 @@ dist: xenial
 python:
   - 3.7
   
+services:
+  - postgresql
+     
 install:
   - pip install -r dev.txt
 
@@ -16,9 +19,7 @@ before_script:
   - psql -c "ALTER ROLE django SET timezone to 'UTC';" -U postgres
 
 script: 
-  - $(cd diary; DJANGO_SETTINGS_MODULE=diary.test_settings coverage run -a --branch manage.py test .)
+  - cd diary
+  - DJANGO_SETTINGS_MODULE=diary.test_settings coverage run -a --branch manage.py test .
 
-services:
-  - postgresql
-     
 after_success: coveralls
