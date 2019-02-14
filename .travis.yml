@@ -1,0 +1,25 @@
+language: python
+
+dist: xenial
+
+python:
+  - 3.7
+  
+services:
+  - postgresql
+     
+install:
+  - pip install -r requirements/dev.txt
+
+before_script:
+  - psql -c "CREATE USER django WITH PASSWORD 'password';" -U postgres
+  - psql -c "ALTER ROLE django WITH SUPERUSER;" -U postgres
+  - psql -c "ALTER ROLE django SET client_encoding to 'utf8';" -U postgres 
+  - psql -c "ALTER ROLE django SET default_transaction_isolation TO 'read committed';" -U postgres
+  - psql -c "ALTER ROLE django SET timezone to 'UTC';" -U postgres
+
+script: 
+  - cd diary
+  - DJANGO_SETTINGS_MODULE=diary.test_settings coverage run -a --branch manage.py test .
+
+after_success: coveralls

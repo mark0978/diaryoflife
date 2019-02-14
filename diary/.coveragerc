@@ -1,0 +1,4 @@
+[run]
+source = diary
+omit = */tests*
+branch = 1
