@@ -11,7 +11,7 @@ from stories.models import Story
 
 # Create your tests here.
 
-class TestStoryModel(TestCase):
+class TestAuthorModel(TestCase):
 
     def setUp(self):
         self.author = mommy.make(Author, name="Bob")
@@ -33,7 +33,7 @@ class TestStoryModel(TestCase):
                         [a for a in authors])
 
 
-class TestStoryForm(TestCase):
+class TestAuthorForm(TestCase):
 
     def setUp(self):
         self.author = mommy.make(Author, name="Bob")
@@ -73,6 +73,18 @@ class TestStoryForm(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertDictEqual({'name': ['This field is required.']}, form.errors)
+
+    def test_commit_equal_false_does_not_create_author(self):
+        # If we save the form without commit=True, it won't actually send it to the DB
+        form = AuthorForm(user=self.author.user)
+
+        form = AuthorForm(data={
+            "name": "BobbaFet",
+            "bio_text": "My **Bio**",
+        }, user=self.author.user)
+
+        saved = form.save(commit=False)
+        self.assertIsNone(saved.id)
 
 
 class TestViews(TestCase):

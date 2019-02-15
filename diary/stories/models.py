@@ -29,20 +29,40 @@ class StoryManager(models.Manager):
         return self.recent().filter(author=author)
 
     def inspired(self, inspiration):
-        """ Return a queryset of the list of stories inspired by inspiration """
-        return self.recent().filter(inspired_by=inspiration)
+        """ Return a queryset of the list of stories inspired by this story """
+        return self.recent().filter(inspired_by=inspiration).exclude(author=inspiration.author)
+
+    def next_chapter(self, story):
+        """ A story by the same author that comes after this story is tne
+             next_chapter of this story """
+        return self.recent().filter(preceeded_by=story, author=story.author)
+
 
 class Story(models.Model):
-    """ Holds a single story content """
+    """ Holds a single story's content and relationships to other stories """
     author = models.ForeignKey('authors.Author', verbose_name=_("Pseudonym"),
                                on_delete=models.PROTECT)
     title = models.CharField(max_length=64, null=False, blank=False)
     tagline = models.CharField(max_length=64, blank=True)
     text = MartorField(null=False, blank=False)
+
+    # This was published by the author on this date (None = draft/private)
     published_at = models.DateTimeField(default=None, null=True, blank=True, db_index=True)
+
+    # This was hidden by an admin for questionable content
     hidden_at = models.DateTimeField(default=None, null=True, blank=True)
+
+    # The author is writing this story because they were inspired_by the indicated story
     inspired_by = models.ForeignKey('self', default=None, null=True, blank=True,
                                     on_delete=models.PROTECT)
+
+    # This story follows another story (like inspired_by, but more like a chapter2 situation)
+    preceeded_by = models.ForeignKey('self', default=None, null=True, blank=True,
+                                     on_delete=models.PROTECT, related_name='previous_chapter')
+
+
+    # Language the story is written in (so we can tell the browser in the HTTP headers and trigger
+    #   translation prompting)
     language = models.CharField(_('language'),
                                 max_length=5,
                                 choices=settings.LANGUAGES,
@@ -67,10 +87,15 @@ class Story(models.Model):
         # TODO: Store the results in memcached for speed
         return SafeString(markdownify(self.text))
 
+    def next_chapter(self):
+        """ A story by the same author that comes after this story is tne
+             next_chapter of this story """
+        return Story.objects.next_chapter(story=self).first()
+
 
 
 class Flag(models.Model):
-    """ When an entry is  flagged, it gets one of these records"""
+    """ When an entry is flagged, it gets one of these records"""
     HATE_SPEECH = 1
     SPAM = 2
     EXPLICIT = 3
