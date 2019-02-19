@@ -247,8 +247,8 @@ MARTOR_ENABLE_CONFIGS = {
 MARTOR_ENABLE_LABEL = False
 
 # Imgur API Keys
-MARTOR_IMGUR_CLIENT_ID = '92fcfee1efc8e25'
-MARTOR_IMGUR_API_KEY   = 'c47e8063b9866147a03d9296129a2d23333cc503'
+MARTOR_IMGUR_CLIENT_ID = os.environ['DJANGO_IMGUR_CLIENT_ID']
+MARTOR_IMGUR_API_KEY   = os.environ['DJANGO_IMGUR_API_KEY']
 
 # Safe Mode
 MARTOR_MARKDOWN_SAFE_MODE = True # default
@@ -257,30 +257,29 @@ MARTOR_MARKDOWN_SAFE_MODE = True # default
 MARTOR_MARKDOWNIFY_FUNCTION = 'martor.utils.markdownify' # default
 MARTOR_MARKDOWNIFY_URL = '/martor/markdownify/' # default
 
-# Markdown extensions (default)
+# Markdown extensions
 MARTOR_MARKDOWN_EXTENSIONS = [
     'markdown.extensions.extra',
     'markdown.extensions.nl2br',
     'markdown.extensions.smarty',
     'markdown.extensions.fenced_code',
-
-    # Custom markdown extensions.
-    'martor.extensions.urlize',
+    'pymdownx.emoji', # Use this emoji instead of the martor since martor gets the filename wrong
+    'pymdownx.betterem',
+    
+    ## Custom markdown extensions.
+    #'martor.extensions.urlize',
     'martor.extensions.del_ins',    # ~~strikethrough~~ and ++underscores++
-    'martor.extensions.mention',    # to parse markdown mention
-    'martor.extensions.emoji',      # to parse markdown emoji
+    ##'martor.extensions.mention',    # to parse markdown mention
+    #'martor.extensions.emoji',      # to parse markdown emoji
     'martor.extensions.mdx_video',  # to parse embed/iframe video
 ]
 
-# Markdown Extensions Configs
+# Markdown Extensions Configs  (Keyed by MARTOR_MARKDOWN_EXTENSION name (from above))
 MARTOR_MARKDOWN_EXTENSION_CONFIGS = {}
 
 # Markdown urls
 MARTOR_UPLOAD_URL = '/martor/uploader/' # default
-MARTOR_SEARCH_USERS_URL = '/martor/search-user/' # default
-
-# Markdown Extensions
-MARTOR_MARKDOWN_BASE_EMOJI_URL = 'https://assets-cdn.github.com/images/icons/emoji/' # default
-MARTOR_MARKDOWN_BASE_MENTION_URL = 'https://python.web.id/author/' # default (change this)
+#MARTOR_SEARCH_USERS_URL = '/martor/search-user/' # default
+#MARTOR_MARKDOWN_BASE_MENTION_URL = 'https://python.web.id/author/' # default (change this)
 
 from martor.extensions import mdx_video
