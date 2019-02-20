@@ -54,6 +54,16 @@ class TestStoryModel(TestCase):
     def test__str__(self):
         self.assertEqual(self.published1.title, str(self.published1))
 
+    def test_next_chapter(self):
+        """ No next chapter on a story that is not inspired_by the same author """
+        self.assertIsNone(self.published1.next_chapter())
+
+        chapter2 = mommy.make(Story, author=self.published1.author, preceeded_by=self.published1,
+                              published_at=timezone.now())
+        self.published1.refresh_from_db()
+        self.assertEqual(chapter2, self.published1.next_chapter())
+
+
 
 class TestStoryForm(TestCase):
 
@@ -133,6 +143,50 @@ class TestStoryForm(TestCase):
         self.assertIsNone(saved.inspired_by) # Not inspired by anything
         self.assertIsNotNone(saved.published_at) # And published
         self.assertIsNotNone(saved.id)
+
+    def test_save_with_no_commit(self):
+        # We need a user and author so cheat and create both of these with a story
+        story = mommy.make(Story, text='Nothing')
+        # If we don't use commit, we should not get a new story in the DB
+        form = StoryForm(data={
+            'title': 'This is the title',
+            'author': story.author.id,
+            'text': 'This is the text',
+            'private': False
+        }, user=story.author.user)
+        saved = form.save(commit=False)
+        self.assertIsNone(saved.id)
+
+    def test_saving_an_unpublished_story_can_set_published_at(self):
+        # We need a user and author so cheat and create both of these with a story
+        story = mommy.make(Story, text='Nothing', published_at=None)
+
+        # Initially the story is not published
+        self.assertIsNone(story.published_at)
+        form = StoryForm(data={
+            'title': 'This is the title',
+            'author': story.author.id,
+            'text': 'This is the text',
+            'private': False  # But this should cause it to be published
+        }, instance=story, user=story.author.user)
+        saved = form.save()
+        self.assertIsNotNone(saved.published_at)
+
+    def test_saving_a_previously_published_story_does_not_change_the_published_at(self):
+        # We need a user and author so cheat and create both of these with a story
+        published_at = timezone.now() - timedelta(days=1)
+        story = mommy.make(Story, text='Nothing', published_at=published_at)
+
+        self.assertEqual(published_at, story.published_at)
+        form = StoryForm(data={
+            'title': 'This is the title',
+            'author': story.author.id,
+            'text': 'This is the text',
+            'private': False  # The published_at should NOT change
+        }, instance=story, user=story.author.user)
+        saved = form.save()
+        self.assertEqual(published_at, saved.published_at)
+
 
 
 class TestStoryViews(TestCase):
@@ -336,6 +390,7 @@ class TestStoryViews(TestCase):
 
 
     def test_read_hides_certain_stories(self):
+        """ Private (unpublished) and hidden (for flagging reasons) stories are NOT readable """
         client = Client()
 
         response = client.get(reverse("stories:read", args=(self.private_story.id,)))
@@ -377,3 +432,26 @@ class TestStoryViews(TestCase):
         response = client.post(explainer_url, data=form_data)
         self.assertEqual(302, response.status_code)
         self.assertEqual(initial_url, response.url)
+
+    def test_next_chapter_in_html(self):
+        """ If a story has a next chapter, that story is listed on the page when you read the
+              previous chapter """
+        client = Client()
+
+        self.assertIsNone(self.story1.next_chapter())
+
+        # Initially this story is not inspired_by the original story
+        chapter2 = mommy.make(Story, author=self.story1.author, published_at=timezone.now())
+        read_chapter2_url = reverse("stories:read", args=(chapter2.id,))
+
+        read_story1_url = reverse("stories:read", args=(self.story1.id,))
+        response = client.get(read_story1_url)
+        self.assertContains(response, read_chapter2_url, count=0)
+
+        # Now we change inspired_by and it should show up as the next chapter
+        chapter2.preceeded_by=self.story1
+        chapter2.save()
+
+        # Make sure we don't link to it in the inspired_by list as well, it only shows up once
+        response = client.get(read_story1_url)
+        self.assertContains(response, read_chapter2_url, count=1)
