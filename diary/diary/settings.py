@@ -54,6 +54,7 @@ ALLOWED_HOSTS = [
     'www.diaryof.life',
     'diaryof.life',
     'diary',
+    'localhost',
 ]
 
 
