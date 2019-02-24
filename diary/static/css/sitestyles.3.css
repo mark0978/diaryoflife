@@ -478,3 +478,39 @@ input {
 	font-weight: bold;
 	border-radius: .5em;
 }
+
+/* Login and Signup template style */
+.ui.grid.login .card,.ui.grid.signup .card{
+	min-width:400px !important;
+	margin:auto !important;
+	margin-top:10vh !important;
+}
+.forgot-password{
+	float:right;
+	padding:10px;
+}
+.ui.grid.login .card .header,.ui.grid.signup .card .header{
+	font-family:'Special Elite',sans-serif;
+	text-align:center;
+	text-transform: bold;
+	font-size:20px !important;
+}
+.ui.grid.login .card .header p,.ui.grid.signup .card .header p{
+	font-family: 'Ubuntu',sans-serif;
+	color:#00ab6b;
+	font-weight: bold;
+}
+.ui.grid.login .card .form .input,.ui.grid.signup .card .input{
+	width:100% !important;
+}
+.ui.grid.login,.ui.grid.signup{
+	background-color: #313436;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+}
+.ui.grid.login .card .extra,.ui.grid.signup .card .extra{
+	text-align: center;
+}

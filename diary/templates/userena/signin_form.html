@@ -4,37 +4,35 @@
 {% block title %}{% trans "Signin" %}{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-6">
-    <form action="" method="post">
-      {% csrf_token %}
-      <fieldset>
-        <legend>{% trans "Signin" %}</legend>
-        {{ form.non_field_errors }}
-        {% for field in form %}
-          {{ field.errors }}
-          {# Displaying checkboxes differently #}
-          {% if field.name == 'remember_me' %}
-            <p class="checkbox">
-              <label for="id_{{ field.name }}">{{ field }} {{ field.label }}</label>
-            </p>
-          {% else %}
-            <p>
-              {{ field.label_tag }}
-              {{ field }}
-            </p>
-          {% endif %}
-        {% endfor %}
-      </fieldset>
-      <input type="submit" value="{% trans "Signin" %}" class="btn btn-info"/>
-      <p class="forgot-password"><a href="{% url 'userena_password_reset' %}" title="{% trans 'Forgot your password?' %}">{% trans "Forgot your password?" %}</a></p>
-      {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
-    </form>
-  </div>
-
-  <div class="col-6">
-    <h3>Don't have an account?</h3>
-    <a class="nav-link" href="{% url 'userena_signup' %}">Create one now!</a>
-  </div>
+<div class="ui grid login">
+  <div class="row">
+    <div class="ui card">
+      <div class="content header">
+        <h3 class="ui header">DIARY OF LIFE</h3>
+        <p>LOGIN</p>
+      </div>
+      <div class="content">
+        <form class="ui form" action="" method="POST">
+            {% csrf_token %}
+            <div class="ui left icon input">
+                <input type="text" name="username" placeholder="Username" class="input"/>
+                <i class="user icon"></i>
+            </div><br></br>
+            <div class="ui left icon input">
+                <input type="text" name="password" placeholder="Password" class="input"/>
+                <i class="lock icon"></i>
+            </div><br><br>
+          <input type="submit" value="{% trans "Signin" %}" class="ui primary button fluid"/>
+          <p class="forgot-password"><a href="{% url 'userena_password_reset' %}" title="{% trans 'Forgot your password?' %}">{% trans "Forgot your password?" %}</a></p>
+          {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
+        </form>
+      </div>
+      <div class="extra content">
+          <p>Don't have an account?
+          <a class="nav-link" href="{% url 'userena_signup' %}">Create one now!</a>
+          </p>
+      </div>
+      </div>
+      </div>
 </div>
 {% endblock %}

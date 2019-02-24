@@ -4,34 +4,46 @@
 {% block title %}{% trans "Signup" %}{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-6">
-      <form action="" method="post">
-        {% csrf_token %}
-        <fieldset>
-          <legend>{% trans "Signup" %}</legend>
-          {{ form.non_field_errors }}
-          {% for field in form %}
-            {{ field.errors }}
-            {# Displaying checkboxes differently #}
-            {% if field.name == 'tos' %}
-              <p class="checkbox">
-                <label for="id_{{ field.name }}">{{ field }} {{ field.label }}</label>
-              </p>
-            {% else %}
-              <p>
-                {{ field.label_tag }}
-                {{ field }}
-              </p>
-            {% endif %}
-          {% endfor %}
-        </fieldset>
-        <input type="submit" value="{% trans "Signup"%}" class="btn btn-info"/>
-      </form>
+  <div class="ui grid signup">
+    <div class="row">
+      <div class="ui card">
+        <div class="content header">
+          <h3 class="ui header">DIARY OF LIFE</h3>
+          <p>CREATE AN ACCOUNT</p>
+        </div>
+        <div class="content">
+          <form class="ui form" action="" method="post">
+              {% csrf_token %}
+            <div class="ui left icon input">
+                <input type="text" placeholder="Username" required name="username" class="input"/>
+                <i class="user icon"></i>
+            </div><br></br>
+            <div class="ui left icon input">
+                <input type="email" placeholder="Email" required name="email" class="input"/>
+                <i class="mail icon"></i>
+            </div><br></br>
+            <div class="ui left icon input">
+                <input type="password" placeholder="Password" required name='password' class="input"/>
+                <i class="lock icon"></i>
+            </div><br></br>
+            <div class="ui left icon input">
+                <input type="password" placeholder="Confirm password" required name='cpassword' class="input"/>
+                <i class="lock icon"></i>
+            </div><br></br>
+            <input type="submit" value="{% trans "Signup"%}" class="ui primary button fluid"/>
+          </form>
+        </div>
+        <div class="content extra">
+                <p>Already have an account?
+                <a class="nav-link" href="{% url 'userena_signin' %}">Login now!</a>
+                </p>
+        </div>
+      </div>
     </div>
-    <div class="col-6">
-      <h3>Already have an account?</h3>
-      <a class="nav-link" href="{% url 'userena_signin' %}">Login now!</a>
+
     </div>
+    <script>
+      $('.signup').fadeIn();
+    </script>
   </div>
 {% endblock %}

@@ -10,20 +10,20 @@
 	<link rel="icon" href="{% static 'img/favicon.ico' %}">
 	<title>{% block PageTitle %}Diary of Life{% endblock PageTitle %}</title>
 	<!-- Bootstrap core CSS -->
+	<link href="{% static 'css/Semantic/semantic.min.css' %}" rel="stylesheet">
 	<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 	<!-- Fonts -->
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Righteous" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="{% static 'css/sitestyles.3.css' %}" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet">  </head>
 	{% block styles %}
 	{% endblock styles %}
 </head>
 <body>
 
-<!-- Begin Nav
-================================================== -->
-<nav class="navbar navbar-toggleable-md navbar-light bg-white fixed-top mediumnavigation">
+<!-- <nav class="navbar navbar-toggleable-md navbar-light bg-white fixed-top mediumnavigation">
 <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
 <span class="navbar-toggler-icon"></span>
 </button>
@@ -32,7 +32,6 @@
 	<a class="navbar-brand" href="{% url 'stories:recent' %}">
 		<img src="{% static 'img/logo.png' %}" alt="logo">
 	</a>
-	<!-- End Logo -->
 	<div class="collapse navbar-collapse" id="navbarsExampleDefault">
 		{% block top-menu %}
 		<ul class="navbar-nav ml-auto">
@@ -64,18 +63,20 @@
 		{% endblock search %}
 	</div>
 </div>
-</nav>
+</nav> -->
 <!-- End Nav
 ================================================== -->
 
 <div class="container">
 	{% block site-title %}
-	<div class="mainheading">
-		<h1 class="sitetitle">Diary Of Life</h1>
-		<p class="lead">
-			 Stories of life that connect us all
-		</p>
-	</div>
+	<!--
+		<div class="mainheading">
+			<h1 class="sitetitle">Diary Of Life</h1>
+			<p class="lead">
+				 Stories of life that connect us all
+			</p>
+		</div>
+	 -->
 	{% endblock site-title %}
 
 	{% block content %}
@@ -83,14 +84,14 @@
 
 
 	{% block footer %}
-	<div class="footer">
+	<!-- <div class="footer">
 		<p class="pull-left">
 			 Copyright &copy; 2019 Diary of Life
 		</p>
 		<div class="clearfix">
 		</div>
-	</div>
-	{% endblock %}
+	</div> -->
+	{% endblock footer %}
 
 </div>
 <!-- /.container -->

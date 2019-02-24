@@ -53,9 +53,14 @@ DEBUG = bool(int(os.getenv('DJANGO_DEBUG', 0)))
 ALLOWED_HOSTS = [
     'www.diaryof.life',
     'diaryof.life',
-    'diary',
-    'localhost',
 ]
+if DEBUG:
+    ALLOWED_HOSTS += [
+        'diary',
+        'localhost',
+        '127.0.0.1',
+        '192.168.0.108',
+    ]
 
 
 # Application definition
@@ -268,7 +273,7 @@ MARTOR_MARKDOWN_EXTENSIONS = [
     'markdown.extensions.fenced_code',
     'pymdownx.emoji', # Use this emoji instead of the martor since martor gets the filename wrong
     'pymdownx.betterem',
-    
+
     ## Custom markdown extensions.
     #'martor.extensions.urlize',
     'martor.extensions.del_ins',    # ~~strikethrough~~ and ++underscores++
