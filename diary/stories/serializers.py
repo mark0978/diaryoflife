@@ -6,11 +6,12 @@ class StorySerializer(serializers.HyperlinkedModelSerializer):
 
     url = serializers.HyperlinkedIdentityField(view_name="story-detail")
     can_edit = serializers.SerializerMethodField()
+    next_chapter = serializers.HyperlinkedRelatedField(view_name='story-detail', read_only=True)
 
     class Meta:
         model = Story
         fields = ('url', 'title', 'tagline', 'author', 'html', 'inspired_by', 
-                  'published_at', 'preceeded_by', 'next_chapter', 'can_edit')
+                  'published_at', 'preceded_by', 'next_chapter', 'can_edit')
 
     def get_can_edit(self, obj):
         """ Can the person that requested this object edit it?

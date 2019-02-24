@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.safestring import SafeString
 
 from martor.models import MartorField
-from martor.utils import markdownify
+from stories.utils import markdownify
 
 # Create your models here.
 

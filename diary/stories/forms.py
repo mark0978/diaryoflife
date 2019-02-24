@@ -4,17 +4,28 @@ from django.utils.translation import gettext as _
 
 from martor.fields import MartorFormField
 
+from licenses.models import License
 from stories.models import Story
 from authors.models import Author
 
-class InspiredByIdField(forms.ModelChoiceField):
+class PublishForm(forms.ModelForm):
+
+    license = forms.ModelChoiceField(queryset=License.objects.active(), required=True)
+    private = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Story
+        fields = ['teaser', 'author', 'license', 'private']
+        
+    
+class RelatedByIdField(forms.ModelChoiceField):
     widget = forms.CheckboxInput
 
     def to_python(self, value):
+        """ This is a boolean for yes/no, we need the related object if it is True """
         if value:
             return self.queryset.first()
         return None
-
 
 class StoryForm(forms.ModelForm):
     """ Used to create or edit a story.  It picks up on inspired_by via 2 mechanisms """
@@ -22,28 +33,37 @@ class StoryForm(forms.ModelForm):
     text = MartorFormField(label=_('Story'), required=True)
     author = forms.ModelChoiceField(label=_('Pseudonym'), queryset=None, required=True)
     private = forms.BooleanField(required=False)
-    inspired_by = InspiredByIdField(required=False, queryset=None)
+    inspired_by = RelatedByIdField(required=False, queryset=None)
+    preceded_by = RelatedByIdField(label=_("This story is preceded by"), required=False, queryset=None)
 
     class Meta:
         model = Story
-        fields = ['author', 'title', 'tagline', 'text', 'inspired_by', 'private']
+        fields = ['author', 'preceded_by', 'title', 'tagline', 'text', 'inspired_by', 'private']
 
-    def get_inspired_by_id(self):
-        """ We can get a value for inspired_by from the initial or the instance and it might be an
-              int or an instance.  Hide all of that here."""
-        if self.instance and self.instance.inspired_by:
-            return self.instance.inspired_by.id
+    def get_from_object_or_data(self, name):
+        """ We can get a value for some fields from the initial, data or the instance and it 
+              might be an int or an instance.  Hide all of that here."""
+        if self.instance and getattr(self.instance, name):
+            return getattr(self.instance, name).id
         else:
-            inspired_by = self.initial.get('inspired_by',
-                                           self.data.get('inspired_by', None))
-            if inspired_by:
-                if isinstance(inspired_by, Story):
-                    return inspired_by.id
+            value = self.initial.get(name, self.data.get(name, None))
+            if value:
+                if isinstance(value, Story):
+                    return value.id
                 else:
-                    return int(inspired_by)
+                    return int(value)
 
         return None
-
+        
+    def adjust_field(self, name):
+        obj_id = self.get_from_object_or_data(name)
+        if obj_id:
+            self.fields[name].queryset = Story.objects.published(pk=obj_id)
+        else:
+            # The user cannot supply a value for these fields (only check the box)
+            #   Remove the field if there is no value to check the box for
+            del self.fields[name]
+        
 
     def __init__(self, *args, user, **kwargs):
         super(StoryForm, self).__init__(*args, **kwargs)
@@ -55,14 +75,11 @@ class StoryForm(forms.ModelForm):
 
         self.fields['author'].queryset = Author.objects.for_user(user)
 
-        inspired_by_id = self.get_inspired_by_id()
-
-        if inspired_by_id:
-            self.fields['inspired_by'].queryset = Story.objects.filter(pk=inspired_by_id)
-        else:
-            # The user cannot supply a value for inspired by (only check the box)
-            #   Remove the field if there is no inspired_by value to check the box for
-            del self.fields['inspired_by']
+        # These are optional fields that may or may not be present depending on 
+        #   GET params or values in the instance.  Remove/adjust them depending
+        #   on the data available.
+        self.adjust_field('inspired_by')
+        self.adjust_field('preceded_by')
 
 
     def save(self, commit=True):

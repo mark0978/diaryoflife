@@ -4,6 +4,7 @@ branch = 1
 [report]
 omit = 
     */tests* 
+    */migrations/*
     *production_settings* 
     *platform_test_settings*
     *site-packages*

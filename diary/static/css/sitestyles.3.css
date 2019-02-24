@@ -470,3 +470,11 @@ a.wrap-card-story {
 input {
     border: 1px solid grey; /* ios is showing the fields with no border??? */
 }
+
+.previous-chapter, .next-chapter {
+	margin: .1em;
+	padding: 1em;
+	background-color: rgba(214, 174,226,.5);
+	font-weight: bold;
+	border-radius: .5em;
+}

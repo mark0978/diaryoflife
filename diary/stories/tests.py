@@ -4,12 +4,16 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse
+from rest_framework.serializers import DateTimeField as DrfDtf
+
 from django.test import TestCase, Client
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from model_mommy import mommy
 
 from stories.models import Story
 from stories.forms import StoryForm
+from stories.serializers import StorySerializer
 
 # Create your tests here.
 
@@ -33,6 +37,10 @@ class TestStoryModel(TestCase):
         stories = Story.objects.published()
         self.assertEqual(set((self.published0.id, self.published1.id, self.published2.id)),
                          set([x.id for x in stories]))
+    def test_drafts(self):
+        stories = Story.objects.drafts(user=self.unpublished.author.user)
+        self.assertEqual(set((self.unpublished.id,)),
+                         set([x.id for x in stories]))
 
     def test_recent(self):
         stories = Story.objects.recent()
@@ -52,13 +60,20 @@ class TestStoryModel(TestCase):
         self.assertEqual("<p>Published 1</p>", self.published1.html())
 
     def test__str__(self):
-        self.assertEqual(self.published1.title, str(self.published1))
+        """ Make sure the title is usable in ModelChoiceFields """
+        self.assertEqual("%s: %s" % (self.published1.title, self.published1.tagline), 
+                         str(self.published1))
+
+    def test_full_title(self):
+        """ Make sure the full_title includes the subtitle since this is used in forms and templates """
+        self.assertEqual("%s: %s" % (self.published1.title, self.published1.tagline), 
+                         str(self.published1))
 
     def test_next_chapter(self):
         """ No next chapter on a story that is not inspired_by the same author """
         self.assertIsNone(self.published1.next_chapter())
 
-        chapter2 = mommy.make(Story, author=self.published1.author, preceeded_by=self.published1,
+        chapter2 = mommy.make(Story, author=self.published1.author, preceded_by=self.published1,
                               published_at=timezone.now())
         self.published1.refresh_from_db()
         self.assertEqual(chapter2, self.published1.next_chapter())
@@ -433,7 +448,7 @@ class TestStoryViews(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertEqual(initial_url, response.url)
 
-    def test_next_chapter_in_html(self):
+    def test_next_and_previous_chapter_in_html(self):
         """ If a story has a next chapter, that story is listed on the page when you read the
               previous chapter """
         client = Client()
@@ -449,9 +464,76 @@ class TestStoryViews(TestCase):
         self.assertContains(response, read_chapter2_url, count=0)
 
         # Now we change inspired_by and it should show up as the next chapter
-        chapter2.preceeded_by=self.story1
+        chapter2.preceded_by=self.story1
         chapter2.save()
 
         # Make sure we don't link to it in the inspired_by list as well, it only shows up once
         response = client.get(read_story1_url)
         self.assertContains(response, read_chapter2_url, count=1)
+
+        # And when reading chapter 2 it gives us a link to chapter 1
+        response = client.get(read_chapter2_url)
+        self.assertContains(response, read_story1_url, count=1)
+
+
+class TestStorySerializer(TestCase):
+    def test_list_serialization(self):
+        """ data creation got a little crazy on this one to catch a bug.  next_chapter was not correct because
+              next_chapter only works if the next_chapter has been published (not if it is still a draft)
+              I added a 3rd object to catch serialization of unpublished stories   
+              next_chapter also requires that the author be the same for the next chapter to be found """
+        story1 = mommy.make(Story, published_at=timezone.now())
+        story2 = mommy.make(Story, inspired_by=story1, preceded_by=story1, 
+                            author=story1.author, published_at=timezone.now())
+        story3 = mommy.make(Story)
+        
+        factory = APIRequestFactory()
+        request = factory.get('api/stories/', format='json')
+        request.user = story1.author.user
+        
+        ser = StorySerializer([story1, story2, story3], many=True, context={'request': request})
+        
+        expected = [
+            {
+                "url": "http://testserver/api/stories/%d/" % story1.id,
+                "title": story1.title,
+                "tagline": "",
+                "author": "http://testserver/api/authors/%d/" % story1.author_id,
+                "html": "<p>This is a <strong>Martor</strong> field.</p>",
+                "inspired_by": None,
+                "published_at": DrfDtf().to_representation(story1.published_at),
+                "preceded_by": None,
+                "next_chapter": "http://testserver/api/stories/%d/" % story2.id,
+                "can_edit": True
+            },
+            {
+                "url": "http://testserver/api/stories/%d/" % story2.id,
+                "title": story2.title,
+                "tagline": "",
+                "author": "http://testserver/api/authors/%d/" %  story2.author_id,
+                "html": "<p>This is a <strong>Martor</strong> field.</p>",
+                "inspired_by": "http://testserver/api/stories/%d/" % story1.id,
+                "published_at": DrfDtf().to_representation(story2.published_at),
+                "preceded_by": "http://testserver/api/stories/%d/" % story1.id,
+                "next_chapter": None,
+                "can_edit": True
+            },
+            {
+                "url": "http://testserver/api/stories/%d/" % story3.id,
+                "title": story3.title,
+                "tagline": "",
+                "author": "http://testserver/api/authors/%d/" %  story3.author_id,
+                "html": "<p>This is a <strong>Martor</strong> field.</p>",
+                "inspired_by": None,
+                "published_at": None,
+                "preceded_by": None,
+                "next_chapter": None,
+                "can_edit": False
+            }
+        ]
+        self.assertDictEqual(expected[0], ser.data[0])
+        self.assertDictEqual(expected[1], ser.data[1])
+        self.assertDictEqual(expected[2], ser.data[2])
+        self.assertEqual(expected, ser.data)
+
+        

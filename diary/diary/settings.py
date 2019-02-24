@@ -95,6 +95,7 @@ INSTALLED_APPS.extend([
     'stories',
     'authors',
     'accounts',
+    'licenses',
 ])
 
 
@@ -283,9 +284,6 @@ MARTOR_MARKDOWN_EXTENSION_CONFIGS = {}
 MARTOR_UPLOAD_URL = '/martor/uploader/' # default
 #MARTOR_SEARCH_USERS_URL = '/martor/search-user/' # default
 #MARTOR_MARKDOWN_BASE_MENTION_URL = 'https://python.web.id/author/' # default (change this)
-
-from martor.extensions import mdx_video
-
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

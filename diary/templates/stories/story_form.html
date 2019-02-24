@@ -19,9 +19,13 @@
     {% for field in form %}
       {{ field.errors }}
       {# Displaying checkboxes differently #}
-      {% if field.name == 'inspired_by' %}
+      {% if field.name == 'preceded_by' %}
         <p class="checkbox">
-          <label for="id_{{ field.name }}">{{ field }} {{ field.label }} <span class='inspired-by-title'>{{ inspired_by.title }}</span></label>
+          <label for="id_{{ field.name }}">{{ field }} {{ field.label }} <span class='preceded-by-title'>{{ preceded_by.full_title }}</span></label>
+        </p>
+      {% elif field.name == 'inspired_by' %}
+        <p class="checkbox">
+          <label for="id_{{ field.name }}">{{ field }} {{ field.label }} <span class='inspired-by-title'>{{ inspired_by.full_title }}</span></label>
         </p>
       {% else %}
         <p>

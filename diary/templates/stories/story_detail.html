@@ -12,17 +12,26 @@
     <h4 class='written-by'>{% trans "Written by"%} <a href='{% url 'authors:detail' pk=object.author.id %}'>{{ object.author }}</a></h4>
     <h5 class='published-at'>{% trans "Published" %}{{ object.published_at }}</h5>
 
+    {% if object.preceded_by %}
+      <div class='previous-chapter'>
+        {% trans "This story is the continuation of:" %} {% include "stories/partials/read_story_link.html" with story=object.preceded_by %}
+      </div>
+    {% endif %}
+
     <div class='story-markdown'>
       {{ object.html }}
     </div>
 
     {% if object.author.user == request.user %}
         <a href="{% url 'stories:edit' pk=object.id %}" class="btn btn-info" role="button">{% trans "Edit this story" %}</a>
+        {% if not object.next_chapter %}
+          <a href="{% url 'stories:create'%}?preceded_by={{object.id}}" class="btn btn-info" role="button">{% trans "Add another chapter?" %}</a>
+        {% endif %}
     {% endif %}
 </div>
 
 {% if object.next_chapter %}
-  {% trans "This story continues in: "%}{% include "stories/partials/read_story_link.html" with story=object.next_chapter %}
+  <div class='next-chapter'>{% trans "Read more of this story: "%} {% include "stories/partials/read_story_link.html" with story=object.next_chapter %}</div>
 {% endif %}
 
 

@@ -24,6 +24,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name="teaser.html")),
     path('admin/', admin.site.urls),
     path('stories/', include('stories.urls')),
+    path('licenses/', include('licenses.urls')),
     path('martor/', include('martor.urls')),
     path('accounts/', include('userena.urls')),
     path('authors/', include('authors.urls')),

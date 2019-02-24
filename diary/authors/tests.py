@@ -1,4 +1,6 @@
 from datetime import timedelta
+
+from django.db.utils import IntegrityError
 from django.test import TestCase, Client
 from django.utils import timezone
 from django.urls import reverse
@@ -19,6 +21,11 @@ class TestAuthorModel(TestCase):
                                              name="Eugene", avatar="https://imgur.com",
                                              user=self.author.user)
         self.other_author = mommy.make(Author, name="Other")
+
+    def test_name_is_unique(self):
+        """ Make sure the db enforces the rules around no duplicate author names """
+        with self.assertRaises(IntegrityError):
+            mommy.make(Author, name=self.author.name)
 
     def test_bio_html(self):
         self.assertEqual("<p><strong>My</strong> name is Eugene!</p>", self.author_with_avatar.bio_html())

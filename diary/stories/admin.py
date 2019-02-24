@@ -10,5 +10,7 @@ class StoryAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': AdminMartorWidget},
     }
+    list_display = ('title', 'tagline', 'teaser')
+
 
 admin.site.register(Story, StoryAdmin)

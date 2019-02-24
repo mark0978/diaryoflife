@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from .models import Story
 from authors.models import Author
-from .forms import StoryForm
+from .forms import StoryForm, PublishForm
 
 # Create your views here.
 
@@ -44,23 +44,25 @@ class CommonStoryFormMixin(ModelFormMixin):
     model = Story
     form_class = StoryForm
 
-    def get_inspired_by(self):
-        """ Return the story that inspired this story, take that from the object, or if creating a
-              new story, from the GET params """
-        if not hasattr(self, '_inspired_by'):
-            self._inspired_by = None
+    def get_field_from_request(self, name):
+        """ Return the story that inspired this story or preceded this story,
+              take that from the object, 
+              or if creating a new story, from the GET params """
+        _name = '_' + name
+        if not hasattr(self, _name):
+            setattr(self, _name, None)
 
             if self.object:
-                self._inspired_by = self.object.inspired_by
+                setattr(self, _name, getattr(self.object, name))
 
-            pk = self.request.GET.get('inspired_by', None)
+            pk = self.request.GET.get(name, None)
             if pk:
                 # This seems hacky as hell.....
-                self._inspired_by = Story.objects.published(pk=int(pk)).first()
+                setattr(self, _name, Story.objects.published(pk=int(pk)).first())
             else:
-                self._inspired_by = None
+                setattr(self, _name, None)
 
-        return self._inspired_by
+        return getattr(self, _name)
 
 
 
@@ -76,12 +78,16 @@ class CommonStoryFormMixin(ModelFormMixin):
 
     def get_initial(self):
         initial = super(CommonStoryFormMixin, self).get_initial()
-        initial['inspired_by'] = self.get_inspired_by()
+        for key in ('inspired_by', 'preceded_by', 'author'):
+            value = self.get_field_from_request(key)
+            if value:
+                initial[key] = value
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(CommonStoryFormMixin, self).get_context_data(**kwargs)
-        context['inspired_by'] = self.get_inspired_by()
+        for key in ('inspired_by', 'preceded_by'):
+            context[key] = self.get_field_from_request(key)
         return context
 
 
@@ -103,6 +109,11 @@ class Create(LoginRequiredMixin, CommonStoryFormMixin, CreateView):
 class Edit(LoginRequiredMixin, CommonStoryFormMixin, UpdateView):
     """ Update an existing entry in the diary of life """
     pass
+
+class Publish(LoginRequiredMixin, CommonStoryFormMixin, UpdateView):
+    """ Publish a saved but as yet unpublished entry in the diary of life """
+    form_class = PublishForm
+
 
 
 class Read(DetailView):

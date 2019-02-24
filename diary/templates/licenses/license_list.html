@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block PageTitle %}Licenses for {{ block.super }}{% endblock PageTitle %}
+
+{% block content %}
+<section class="featured-posts">
+    <div class="section-title">
+        <h2><span>Available Licenses</span></h2>
+    </div>
+    <div class="card-columns licenses">
+    
+        <ul>
+            {% for object in object_list %}
+                <li><a href={% url "licenses:read" pk=object.id %}>{{ object }}</a></li>
+            {% empty %}
+                <li>{% trans "There are no available licenses" %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endblock content %}

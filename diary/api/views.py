@@ -10,8 +10,14 @@ class StoryViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows stories to be viewed or edited.
     """
-    queryset = Story.objects.recent()
     serializer_class = StorySerializer
+    queryset = Story.objects.all()
+    
+    def get_queryset(self):
+        author_id = self.request.GET.get('author_id')
+        if author_id:
+            return Story.objects.by_author(author_id).all()
+        return Story.objects.recent().all()
 
 
 class AuthorViewSet(viewsets.ModelViewSet):

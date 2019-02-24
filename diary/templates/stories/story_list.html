@@ -17,10 +17,9 @@
                 <div class="col-md-12">
                     <div class="card-block">
                         <a href="{% url "stories:read" pk=object.pk %}" class='wrap-card-story'>
-                            <h2 class="card-title">{{ object.title }}</h2>
-                            <h3 class="card-tagline">{{ object.tagline }}</h3>
+                            <h2 class="card-title">{{ object.full_title }}</h2>
                         </a>
-                        <h4 class="card-text">{{ object.html|truncatechars_html:150 }}</h4>
+                        <h4 class="card-text">{{ object.teaser|truncatechars_html:150 }}</h4>
                     </div>
                 </div>
             </div>
