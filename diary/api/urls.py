@@ -19,6 +19,7 @@ from api import views
 
 router = routers.DefaultRouter()
 router.register(r'stories', views.StoryViewSet)
+router.register(r'summaries', views.StorySummaryViewSet, basename='story-summary')
 router.register(r'authors', views.AuthorViewSet)
 
 # Wire up our API using automatic URL routing.

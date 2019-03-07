@@ -61,23 +61,41 @@ class TestStoryModel(TestCase):
 
     def test__str__(self):
         """ Make sure the title is usable in ModelChoiceFields """
-        self.assertEqual("%s: %s" % (self.published1.title, self.published1.tagline), 
+        self.assertEqual("%s: %s" % (self.published1.title, self.published1.tagline),
                          str(self.published1))
 
     def test_full_title(self):
         """ Make sure the full_title includes the subtitle since this is used in forms and templates """
-        self.assertEqual("%s: %s" % (self.published1.title, self.published1.tagline), 
+        self.assertEqual("%s: %s" % (self.published1.title, self.published1.tagline),
                          str(self.published1))
 
     def test_next_chapter(self):
         """ No next chapter on a story that is not inspired_by the same author """
-        self.assertIsNone(self.published1.next_chapter())
+        self.assertIsNone(self.published1.next_chapter_id())
 
         chapter2 = mommy.make(Story, author=self.published1.author, preceded_by=self.published1,
                               published_at=timezone.now())
         self.published1.refresh_from_db()
         self.assertEqual(chapter2, self.published1.next_chapter())
+        self.assertEqual(chapter2.id, self.published1.next_chapter_id())
 
+        # Make sure the return value is cached so that we only query once
+        self.assertNumQueries(0, self.published1.next_chapter)
+        self.assertNumQueries(0, self.published1.next_chapter_id)
+
+        # Now you see them
+        self.assertTrue(hasattr(self.published1, '_next_chapter'))
+        self.assertTrue(hasattr(self.published1, '_next_chapter_id'))
+
+        # This should trigger clearing the _next_chapter* pseudo fields from the model
+        self.published1.refresh_from_db()
+        # Now you don't
+        self.assertFalse(hasattr(self.published1, '_next_chapter'))
+        self.assertFalse(hasattr(self.published1, '_next_chapter_id'))
+
+        # And test the path where neither of these pseudo fields exist on the object when
+        #   we refresh
+        self.published1.refresh_from_db()
 
 
 class TestStoryForm(TestCase):
@@ -453,7 +471,7 @@ class TestStoryViews(TestCase):
               previous chapter """
         client = Client()
 
-        self.assertIsNone(self.story1.next_chapter())
+        self.assertIsNone(self.story1.next_chapter_id())
 
         # Initially this story is not inspired_by the original story
         chapter2 = mommy.make(Story, author=self.story1.author, published_at=timezone.now())
@@ -480,60 +498,63 @@ class TestStorySerializer(TestCase):
     def test_list_serialization(self):
         """ data creation got a little crazy on this one to catch a bug.  next_chapter was not correct because
               next_chapter only works if the next_chapter has been published (not if it is still a draft)
-              I added a 3rd object to catch serialization of unpublished stories   
+              I added a 3rd object to catch serialization of unpublished stories
               next_chapter also requires that the author be the same for the next chapter to be found """
         story1 = mommy.make(Story, published_at=timezone.now())
-        story2 = mommy.make(Story, inspired_by=story1, preceded_by=story1, 
+        story2 = mommy.make(Story, inspired_by=story1, preceded_by=story1,
                             author=story1.author, published_at=timezone.now())
         story3 = mommy.make(Story)
-        
+
         factory = APIRequestFactory()
         request = factory.get('api/stories/', format='json')
         request.user = story1.author.user
-        
+
         ser = StorySerializer([story1, story2, story3], many=True, context={'request': request})
-        
+
         expected = [
             {
-                "url": "http://testserver/api/stories/%d/" % story1.id,
+                "id": story1.id,
                 "title": story1.title,
                 "tagline": "",
-                "author": "http://testserver/api/authors/%d/" % story1.author_id,
+                "teaser": None,
+                "author_id": story1.author_id,
                 "html": "<p>This is a <strong>Martor</strong> field.</p>",
-                "inspired_by": None,
+                "inspired_by_id": None,
                 "published_at": DrfDtf().to_representation(story1.published_at),
-                "preceded_by": None,
-                "next_chapter": "http://testserver/api/stories/%d/" % story2.id,
+                "preceded_by_id": None,
+                "next_chapter_id": story2.id,
                 "can_edit": True
             },
             {
-                "url": "http://testserver/api/stories/%d/" % story2.id,
+                "id": story2.id,
                 "title": story2.title,
                 "tagline": "",
-                "author": "http://testserver/api/authors/%d/" %  story2.author_id,
+                "teaser": None,
+                "author_id": story2.author_id,
                 "html": "<p>This is a <strong>Martor</strong> field.</p>",
-                "inspired_by": "http://testserver/api/stories/%d/" % story1.id,
+                "inspired_by_id": story1.id,
                 "published_at": DrfDtf().to_representation(story2.published_at),
-                "preceded_by": "http://testserver/api/stories/%d/" % story1.id,
-                "next_chapter": None,
+                "preceded_by_id": story1.id,
+                "next_chapter_id": None,
                 "can_edit": True
             },
             {
-                "url": "http://testserver/api/stories/%d/" % story3.id,
+                "id": story3.id,
                 "title": story3.title,
                 "tagline": "",
-                "author": "http://testserver/api/authors/%d/" %  story3.author_id,
+                "teaser": None,
+                "author_id": story3.author_id,
                 "html": "<p>This is a <strong>Martor</strong> field.</p>",
-                "inspired_by": None,
+                "inspired_by_id": None,
                 "published_at": None,
-                "preceded_by": None,
-                "next_chapter": None,
+                "preceded_by_id": None,
+                "next_chapter_id": None,
                 "can_edit": False
             }
         ]
+        self.maxDiff = None
         self.assertDictEqual(expected[0], ser.data[0])
         self.assertDictEqual(expected[1], ser.data[1])
         self.assertDictEqual(expected[2], ser.data[2])
         self.assertEqual(expected, ser.data)
 
-        

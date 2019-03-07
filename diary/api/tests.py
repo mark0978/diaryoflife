@@ -8,13 +8,13 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from model_mommy import mommy
 
-from stories.serializers import Story, StorySerializer
-from api.views import StoryViewSet, AuthorViewSet
+from stories.serializers import Story, StorySerializer, StorySummarySerializer
+from api.views import StoryViewSet, StorySummaryViewSet, AuthorViewSet
 
 # Create your tests here.
 
 class TestStoryApi(TestCase):
-    
+
     def setUp(self):
         self.story1 = mommy.make(Story, published_at=timezone.now()-timedelta(hours=1))
         self.story2 = mommy.make(Story, published_at=timezone.now())
@@ -25,18 +25,17 @@ class TestStoryApi(TestCase):
             "count": len(data),
             "next": None,
             "previous": None,
-            "results": StorySerializer(instance=data, many=True, 
+            "results": StorySerializer(instance=data, many=True,
                                        context={"request": request}).data
         }
         self.assertEqual(200, response.status_code)
         self.assertEqual('application/json', response['content-type'])
-        
+
         self.assertDictEqual(expected, json.loads(response.rendered_content))
-    
-        
+
     def test_list_view(self):
         url = reverse("story-list")
-        
+
         factory = APIRequestFactory()
         request = factory.get(url, format='json')
         request.user = self.story1.author.user
@@ -44,13 +43,12 @@ class TestStoryApi(TestCase):
         view = StoryViewSet.as_view({'get': 'list'})
         response = view(request)
         response.render()
-        
+
         self.assertValidResponse(request, response, [self.story2, self.story1])
-        
-        
+
     def test_list_view_by_author(self):
         url = reverse("story-list") + "?author_id=%s" % self.story1.author_id
-        
+
         factory = APIRequestFactory()
         request = factory.get(url, format='json')
         request.user = self.story1.author.user
@@ -58,11 +56,11 @@ class TestStoryApi(TestCase):
         view = StoryViewSet.as_view({'get': 'list'})
         response = view(request)
         response.render()
-        
+
         self.assertValidResponse(request, response, [self.story1])
 
         url = reverse("story-list") + "?author_id=%s" % self.story2.author_id
-        
+
         factory = APIRequestFactory()
         request = factory.get(url, format='json')
         request.user = self.story1.author.user
@@ -70,6 +68,87 @@ class TestStoryApi(TestCase):
         view = StoryViewSet.as_view({'get': 'list'})
         response = view(request)
         response.render()
-        
+
         self.assertValidResponse(request, response, [self.story2])
-        
+
+
+class TestStorySummaryApi(TestCase):
+    def setUp(self):
+        self.story1 = mommy.make(Story, published_at=timezone.now()-timedelta(hours=1))
+        self.story2 = mommy.make(Story, published_at=timezone.now(), inspired_by_id=self.story1.id)
+        self.unpublished = mommy.make(Story)
+
+    def assertValidResponse(self, request, response, data):
+        expected = {
+            "count": len(data),
+            "next": None,
+            "previous": None,
+            "results": StorySummarySerializer(instance=data, many=True,
+                                       context={"request": request}).data
+        }
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('application/json', response['content-type'])
+
+        self.assertDictEqual(expected, json.loads(response.rendered_content))
+
+    def test_list_view(self):
+        url = reverse("story-summary-list")
+
+        factory = APIRequestFactory()
+        request = factory.get(url, format='json')
+        request.user = self.story1.author.user
+
+        view = StorySummaryViewSet.as_view({'get': 'list'})
+        response = view(request)
+        response.render()
+
+        self.assertValidResponse(request, response, [self.story2, self.story1])
+
+    def test_list_view_by_author(self):
+        url = reverse("story-summary-list") + "?author_id=%s" % self.story1.author_id
+
+        factory = APIRequestFactory()
+        request = factory.get(url, format='json')
+        request.user = self.story1.author.user
+
+        view = StorySummaryViewSet.as_view({'get': 'list'})
+        response = view(request)
+        response.render()
+
+        self.assertValidResponse(request, response, [self.story1])
+
+        url = reverse("story-summary-list") + "?author_id=%s" % self.story2.author_id
+
+        factory = APIRequestFactory()
+        request = factory.get(url, format='json')
+        request.user = self.story1.author.user
+
+        view = StorySummaryViewSet.as_view({'get': 'list'})
+        response = view(request)
+        response.render()
+
+        self.assertValidResponse(request, response, [self.story2])
+
+    def test_list_view_by_inspiration(self):
+        url = reverse("story-summary-list") + "?inspired_by_id=%s" % self.story1.id
+
+        factory = APIRequestFactory()
+        request = factory.get(url, format='json')
+        request.user = self.story1.author.user
+
+        view = StorySummaryViewSet.as_view({'get': 'list'})
+        response = view(request)
+        response.render()
+
+        self.assertValidResponse(request, response, [self.story2])
+
+        url = reverse("story-summary-list") + "?inspired_by_id=%s" % self.story2.id
+
+        factory = APIRequestFactory()
+        request = factory.get(url, format='json')
+
+        view = StorySummaryViewSet.as_view({'get': 'list'})
+        response = view(request)
+        response.render()
+
+        self.assertValidResponse(request, response, [])

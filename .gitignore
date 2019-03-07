@@ -5,3 +5,4 @@ diary/site/
 __pycache__
 .coverage
 htmlcov/
+pwa/node_modules/

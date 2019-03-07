@@ -10,7 +10,7 @@
     <h1 class='title'>{{ object.title }}</h1>
     <h2 class='tagline'>{{ object.tagline }}</h2>
     <h4 class='written-by'>{% trans "Written by"%} <a href='{% url 'authors:detail' pk=object.author.id %}'>{{ object.author }}</a></h4>
-    <h5 class='published-at'>{% trans "Published" %}{{ object.published_at }}</h5>
+    <h5 class='published-at'>{% trans "Published" %} {{ object.published_at }}</h5>
 
     {% if object.preceded_by %}
       <div class='previous-chapter'>
@@ -36,9 +36,9 @@
 
 
 {% if object.inspired_by %}
-<div class='inspired-by'>
+  <div class='inspired-by'>
     {% trans "This story was inspired by:" %} {% include "stories/partials/read_story_link.html" with story=object.inspired_by %}
-</div>
+  </div>
 {% endif %}
 
 

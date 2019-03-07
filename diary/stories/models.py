@@ -31,15 +31,16 @@ class StoryManager(models.Manager):
 
     def inspired(self, inspiration):
         """ Return a queryset of the list of stories inspired by this story """
-        return self.recent().filter(inspired_by=inspiration).exclude(author=inspiration.author)
+        return self.recent().filter(inspired_by=inspiration)
 
     def next_chapter(self, story):
         """ A story by the same author that comes after this story is tne
              next_chapter of this story """
-        return self.recent().filter(preceded_by=story, author=story.author)
-    
+        return self.published(preceded_by=story, author=story.author)
+
     def drafts(self, user):
-        """ Return a queryset of drafts written by this user so they can finish them and get them published. """
+        """ Return a queryset of drafts written by this user so they can finish them
+              and get them published. """
         return self.filter(published_at__isnull=True, author__user=user)
 
 
@@ -85,16 +86,16 @@ class Story(models.Model):
                                 choices=settings.LANGUAGES,
                                 default=settings.LANGUAGE_CODE[:2],
                                 help_text=_('Story language.'))
-    
+
     class Meta:
         verbose_name_plural = "stories"
-        
+
 
     objects = StoryManager()
 
     def __str__(self):
         return self.full_title()
-    
+
     def full_title(self):
         """ """
         return '%s: %s' % (self.title, self.tagline)
@@ -112,11 +113,29 @@ class Story(models.Model):
         # TODO: Store the results in memcached for speed
         return SafeString(markdownify(self.text))
 
+    def next_chapter_id(self):
+        """ The id of the story (with preceeded_by_id == self.id) by the same author
+              is the next_chapter of this story. This is used by the serializers"""
+        if not hasattr(self, '_next_chapter_id'):
+            self._next_chapter_id = Story.objects.next_chapter(story=self).values_list('id', flat=True).first()
+        return self._next_chapter_id
+
     def next_chapter(self):
         """ A story by the same author that comes after this story is tne
-             next_chapter of this story """
-        return Story.objects.next_chapter(story=self).first()
+             next_chapter of this story.  This is used when formatting the story with a template. """
+        if not hasattr(self, '_next_chapter'):
+            self._next_chapter = Story.objects.next_chapter(story=self).first()
+        return self._next_chapter
 
+    def refresh_from_db(self, using=None, fields=None):
+        """ Clear the extra pseudo fields we have added for next_chapter and next_chapter_id since Django
+              doesn't know about them """
+        if hasattr(self, '_next_chapter') and (not fields or '_next_chapter' in fields):
+            del self._next_chapter
+        if hasattr(self, '_next_chapter_id') and (not fields or '_next_chapter_id' in fields):
+            del self._next_chapter_id
+
+        return super(Story, self).refresh_from_db(using, fields)
 
 
 class Flag(models.Model):
