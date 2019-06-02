@@ -96,6 +96,7 @@ INSTALLED_APPS.extend([
     'easy_thumbnails',
     'guardian',
     'rest_framework',
+    'rest_framework.authtoken',
 
     'stories',
     'authors',

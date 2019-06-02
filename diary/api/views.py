@@ -1,9 +1,13 @@
 from django.shortcuts import render
+from django.contrib.auth import get_user_model # If used custom user model
 
 # Create your views here.
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
+from rest_framework.generics import CreateAPIView
+
 from stories.serializers import Story, StorySerializer, StorySummarySerializer
 from authors.serializers import Author, AuthorSerializer
+from .serializers import UserSerializer
 
 
 class StoryViewSet(viewsets.ModelViewSet):
@@ -44,3 +48,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+
+
+class CreateUserView(CreateAPIView):
+
+    model = get_user_model()
+    permission_classes = [
+        permissions.AllowAny # Or anon users can't register
+    ]
+    serializer_class = UserSerializer
+
+create_user = CreateUserView.as_view()

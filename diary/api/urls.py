@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.urls import include, path
 from rest_framework import routers
+from rest_framework.authtoken import views as authtoken_views
 from api import views
 
 router = routers.DefaultRouter()
@@ -26,5 +27,7 @@ router.register(r'authors', views.AuthorViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
-    path('auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('auth/api-token/', authtoken_views.obtain_auth_token, name='api-token'),
+    path('auth/register/', views.create_user, name='api-register-user'),
+    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

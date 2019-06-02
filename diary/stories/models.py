@@ -31,7 +31,7 @@ class StoryManager(models.Manager):
 
     def inspired(self, inspiration):
         """ Return a queryset of the list of stories inspired by this story """
-        return self.recent().filter(inspired_by=inspiration)
+        return self.published(inspired_by=inspiration)
 
     def next_chapter(self, story):
         """ A story by the same author that comes after this story is tne
