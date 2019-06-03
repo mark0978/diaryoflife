@@ -1,25 +1,24 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-    <div class="ui large secondary pointing menu">
-      <a class="active item">
+  {# Dirty hack. Will use django-guardian in the future. #}
+  {% if user.username == profile.user.username %}
+    <div class="ui large secondary tabular menu stackable">
+      <a class="item {% block profile-view %}{% endblock %}" href="{% url 'userena_profile_detail' user.username %}">
         {% trans "View Profile" %}
-      </a>
-      <a class="item" href="{% url 'userena_profile_edit' user.username %}">
+      <a class="item {% block profile-edit %}{% endblock %}" href="{% url 'userena_profile_edit' user.username %}">
         {% trans "Edit Profile" %}
       </a>
-      <a class="item" href="{% url 'authors:my-pseudonyms' %}">
+      <a class="item {% block profile-pseudonyms %}{% endblock %}" href="{% url 'authors:my-pseudonyms' %}">
         {% trans "Pseudonyms" %}
       </a>
-      <a class="item" href="{% url 'userena_password_change' user.username %}">
+      <a class="item {% block profile-password-change %}{% endblock %}" href="{% url 'userena_password_change' user.username %}">
         {% trans "Change Password" %}
       </a>
-      <a class="item" href="{% url 'userena_email_change' user.username %}">
+      <a class="item {%block profile-email-change %}{% endblock %}" href="{% url 'userena_email_change' user.username %}">
         {% trans "Change Email" %}
       </a>
     </div>
-  <div class="ui segment">
-    <p></p>
-  </div>
-{% block panel %} {% endblock panel %}
+  {% endif %}
+  {% block panel %} {% endblock panel %}
 {% endblock content %}

@@ -7,8 +7,23 @@
   {% if object.id %}{{ title_edit }}{% else %}{{ title_create }}{% endif %} -- {{ block.super }}
 {% endblock PageTitle %}
 
-{% block content %}
+{% block styles %}
+  {{ block.super }}
+  {# Hide the toolbar on small screens #}
+  <style>
+    div.ui.right.floated.item.martor-toolbar {
+      display:none;
+    }
+    @media only screen and (min-width: 800px) {
+      div.ui.right.floated.item.martor-toolbar {
+        display: flex;
+      }
+    }
+  </style>
+{% endblock styles %}
 
+{% block content %}
+<div style="height: 51px"></div>
 <form action="" method="post">
   {% csrf_token %}
   <fieldset>
@@ -37,8 +52,6 @@
   </fieldset>
   <input type="submit" value="{% trans "Save"%}" class="btn btn-info"/>
 </form>
-
-
 {% endblock content %}
 
 {% block javascript %}

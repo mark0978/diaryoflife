@@ -1,8 +1,10 @@
-{% extends "base.html" %}
+{% extends "userena/base_userena.html" %}
 {% load static %}
 {% load i18n %}
 
-{% block content %}
+{% block profile-pseudonyms %}active{% endblock %}
+
+{% block panel %}
 <h2>Your Pseudonyms are</h2>
 
 <ul class='my-pseudonyms'>
@@ -13,4 +15,4 @@
     {% endfor %}
         <li><a href="{% url 'authors:create' %}">{% trans 'Add a new Pseudonym' %}</a></li>
 </ul>
-{% endblock content %}
+{% endblock panel %}
