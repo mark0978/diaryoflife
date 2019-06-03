@@ -14,14 +14,21 @@
       <div class="content">
         <form class="ui form" action="" method="POST">
             {% csrf_token %}
-            <div class="ui left icon input">
-                <input type="text" name="username" placeholder="Username" class="input"/>
-                <i class="user icon"></i>
-            </div><br></br>
-            <div class="ui left icon input">
-                <input type="text" name="password" placeholder="Password" class="input"/>
-                <i class="lock icon"></i>
-            </div><br><br>
+            <div class="field">
+              {{ form.identification.errors }}
+              {{ form.identification.label_tag }}
+              {{ form.identification }}
+            </div>
+            <div class="field">
+              {{ form.password.errors }}
+              {{ form.password.label_tag }}
+              {{ form.password }}
+            </div>
+            <div class="ui checkbox">
+              {{ form.remember_me.errors }}
+              {{ form.remember_me.label_tag }}
+              {{ form.remember_me }}
+            </div>
           <input type="submit" value="{% trans "Signin" %}" class="ui primary button fluid"/>
           <p class="forgot-password"><a href="{% url 'userena_password_reset' %}" title="{% trans 'Forgot your password?' %}">{% trans "Forgot your password?" %}</a></p>
           {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}

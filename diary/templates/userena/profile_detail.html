@@ -4,7 +4,7 @@
 {% block title %}{% blocktrans with profile.user.username as username %}{{ username }}'s profile.{% endblocktrans %}{% endblock %}
 {% block content_title %}<h2>{{ profile.user.username }} {% if profile.user.get_full_name %}({{ profile.user.get_full_name }}){% endif %}</h2>{% endblock %}
 
-{% block content %}
+{% block panel %}
   <div class="white-box">
     {% block profile_navigation %}
       {# Dirty hack. Will use django-guardian in the future. #}
@@ -19,7 +19,9 @@
           {% endblock %}
         </ul>
       {% endif %}
-    {% endblock %}
+    {% endblock profile_navigation %}
+
+
 
     <div id="details">
       {% block profile_details %}
@@ -50,9 +52,9 @@
               <dt>{% trans "About me" %}</dt>
               <dd>{{ profile.about_me }}</dd>
             {% endif %}
-          {% endblock %}
+          {% endblock profile_definition_list %}
         </dl>
-      {% endblock %}
+      {% endblock profile_details %}
     </div>
   </div>
-{% endblock %}
+{% endblock panel %}

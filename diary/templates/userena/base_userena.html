@@ -1,1 +1,25 @@
 {% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+    <div class="ui large secondary pointing menu">
+      <a class="active item">
+        {% trans "View Profile" %}
+      </a>
+      <a class="item" href="{% url 'userena_profile_edit' user.username %}">
+        {% trans "Edit Profile" %}
+      </a>
+      <a class="item" href="{% url 'authors:my-pseudonyms' %}">
+        {% trans "Pseudonyms" %}
+      </a>
+      <a class="item" href="{% url 'userena_password_change' user.username %}">
+        {% trans "Change Password" %}
+      </a>
+      <a class="item" href="{% url 'userena_email_change' user.username %}">
+        {% trans "Change Email" %}
+      </a>
+    </div>
+  <div class="ui segment">
+    <p></p>
+  </div>
+{% block panel %} {% endblock panel %}
+{% endblock content %}

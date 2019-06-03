@@ -5,7 +5,16 @@
   {{ object.title }} -- {{ block.super }}
 {% endblock PageTitle %}
 
-{% block content %}
+{% block styles %}
+  {{ block.super }}
+  <style>
+    .story img {
+      max-width: 100%
+    }
+  </style>
+{% endblock styles %}
+
+  {% block content %}
 <div class='story'>
     <h1 class='title'>{{ object.title }}</h1>
     <h2 class='tagline'>{{ object.tagline }}</h2>
