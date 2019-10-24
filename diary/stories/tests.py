@@ -17,6 +17,16 @@ from stories.serializers import StorySerializer
 
 # Create your tests here.
 
+def clean_form(d):
+    """ 2.2.x Django won't encode None as a form value, you have to convert it to an empty string
+          or remove the key from the form data.  So, we change None to the empty string to behave
+          like the browser. """
+    for key in d.keys():
+        if d[key] is None:
+            d[key] = ''
+
+    return d
+
 class TestStoryModel(TestCase):
 
     def setUp(self):
@@ -398,7 +408,7 @@ class TestStoryViews(TestCase):
         # Now, unpublish this story and see if the published_at field is cleared
         form_data = form.initial
         form_data['private'] = 1
-        response = client.post(url, data=form_data)
+        response = client.post(url, data=clean_form(form_data))
         self.assertEqual(302, response.status_code)
 
         edited_story = Story.objects.get(title=form_data['title'], author=self.author)

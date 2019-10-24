@@ -19,11 +19,13 @@ class StoryManager(models.Manager):
 
     def recent(self):
         """ Order the list of visible Entries by their published date (descending) """
-        return self.published().order_by('-published_at')
+        return self.published()
 
     def published(self, **kwargs):
         """ Return a QS of all published articles that have not been hidden """
-        return self.filter(hidden_at=None, **kwargs).exclude(published_at__isnull=True)
+        return (self.filter(hidden_at=None, **kwargs)
+                .exclude(published_at__isnull=True)
+                .order_by('-published_at'))
 
     def by_author(self, author):
         """ Return the recent list of stories by this author """
